@@ -1,0 +1,3 @@
+-e git+https://github.com/openstack/nova.git@milestone-proposed#egg=nova
+-e git+https://github.com/openstack/python-novaclient.git@milestone-proposed#egg=python-novaclient
+-e git+https://github.com/openstack/python-keystoneclient.git@essex-4#egg=python-keystoneclient

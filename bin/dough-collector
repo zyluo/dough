@@ -1,0 +1,16 @@
+#!/usr/bin/env python
+
+import ConfigParser
+
+from keystoneclient.v2_0 import client
+
+if __name__ == '__main__':
+    config = ConfigParser.ConfigParser()
+    config.read("/etc/dough/dough.conf")
+    keystone_cfg = dict(config.items('Keystone'))
+
+    keystone = client.Client(**keystone_cfg)
+    tenants = keystone.tenants.list()
+    for tenant in tenants:
+        print tenant.id
+        print tenant.description

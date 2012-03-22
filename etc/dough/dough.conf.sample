@@ -1,0 +1,13 @@
+[MySQL]
+host: localhost
+user: someuser
+passwd: somepassword
+db: someschema
+
+[Dough]
+handler_host: 127.0.0.1
+handler_port: 5557
+broadcast_host: 127.0.0.1
+broadcast_port: 5558
+feedback_host: 127.0.0.1
+feedback_port: 5559

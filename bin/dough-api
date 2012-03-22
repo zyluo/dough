@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+# -*- coding: utf8 -*-
+
+import ConfigParser
+import traceback
+
+import zmq
+
+from nova import utils
+from dough import api
+
+if __name__ == '__main__':
+    config = ConfigParser.ConfigParser()
+    config.read("/etc/dough/dough.conf")
+    server_cfg = dict(config.items('Dough'))
+
+    context = zmq.Context()
+
+    # Socket to receive messages on
+    handler = context.socket(zmq.REP)
+    handler.bind("tcp://%(handler_host)s:%(handler_port)s" % server_cfg)
+
+    poller = zmq.Poller()
+    poller.register(handler, zmq.POLLIN)
+
+    while True:
+        socks = dict(poller.poll())
+        if socks.get(handler) == zmq.POLLIN:
+            msg_type, msg_uuid, msg_json = handler.recv_multipart()
+            response = dict()
+            cli_msg = {'status': 200, 'description': 'OK'}
+            try:
+                msg_body = utils.loads(msg_json)
+                method = msg_body['method']
+                args = msg_body['args']
+                asdf = getattr(api, method)
+                response = asdf(**args)
+            except Exception, e:
+                print traceback.format_exc()
+                cli_msg['status'] = 500
+                cli_msg['description'] = str(e)
+            response.update(cli_msg)
+            handler.send_multipart([msg_type, msg_uuid,
+                                    utils.dumps(response)])
