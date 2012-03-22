@@ -4,10 +4,10 @@
 class InstanceBillingManager(object):
 
     def __init__(self):
-        pass
+        print "instance manager created"
 
     def is_active(self):
-        pass
+        print "instance is active"
 
     def subscribe(self):
         # try:
@@ -18,7 +18,7 @@ class InstanceBillingManager(object):
         # except Exception, e:
         #     report
         #     raise
-        pass
+        print "instance subscribed"
 
     def unsubscribe(self):
         # try:
@@ -29,7 +29,7 @@ class InstanceBillingManager(object):
         # except Exception, e:
         #     report
         #     raise
-        pass
+        print "instance unsubscribed"
 
     def purchase(self):
-        pass
+        print "instance purchased"
