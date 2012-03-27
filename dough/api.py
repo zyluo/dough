@@ -74,7 +74,7 @@ def unsubscribe_item(context, region=None, item=None,
     filters = {
         'project_id': tenant_id,
         'resource_uuid': resource_uuid,
-        #'timestamp': deleted_at,
+        #'timestamp': timestamp,
         }
     try:
         filters['region_id'] = db.region_get_by_name(context, region)['id']
