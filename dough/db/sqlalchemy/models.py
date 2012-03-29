@@ -15,6 +15,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+
 """
 SQLAlchemy models for dough data.
 """
@@ -65,9 +66,10 @@ class Product(models.BASE, models.NovaBase):
     """Represents products."""
 
     __tablename__ = 'products'
+    id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
     region_id = Column(Integer,
                        ForeignKey(Region.id),
-                       primary_key=True)
+                       nullable=False)
     region = relationship(Region,
                           backref=backref('products'),
                           foreign_keys=region_id,
@@ -76,7 +78,7 @@ class Product(models.BASE, models.NovaBase):
                                       'Product.deleted == False)')
     item_id = Column(Integer,
                      ForeignKey(Item.id),
-                     primary_key=True)
+                     nullable=False)
     item = relationship(Item,
                         backref=backref('products'),
                         foreign_keys=item_id,
@@ -85,7 +87,7 @@ class Product(models.BASE, models.NovaBase):
                                     'Product.deleted == False)')
     item_type_id = Column(Integer,
                           ForeignKey(ItemType.id),
-                          primary_key=True)
+                          nullable=False)
     item_type = relationship(ItemType,
                              backref=backref('products'),
                              foreign_keys=item_type_id,
@@ -94,7 +96,7 @@ class Product(models.BASE, models.NovaBase):
                                          'Product.deleted == False)')
     payment_type_id = Column(Integer,
                              ForeignKey(PaymentType.id),
-                             primary_key=True)
+                             nullable=False)
     payment_type = relationship(PaymentType,
                                 backref=backref('products'),
                                 foreign_keys=payment_type_id,
