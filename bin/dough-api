@@ -6,12 +6,12 @@ import sys
 
 import zmq
 
-from nova import context as nova_context
 from nova import flags
 from nova import log as logging
 from nova import utils
 
 from dough import api
+from dough import context as dough_context
 
 utils.default_flagfile(filename='/etc/dough/dough.conf')
 flags.FLAGS(sys.argv)
@@ -20,17 +20,14 @@ logging.setup()
 FLAGS = flags.FLAGS
 
 if __name__ == '__main__':
-    context = zmq.Context()
+    zmq_context = zmq.Context()
 
     # Socket to receive messages on
-    handler = context.socket(zmq.REP)
+    handler = zmq_context.socket(zmq.REP)
     handler.bind("tcp://%s:%s" % (FLAGS.api_listen, FLAGS.api_listen_port))
 
     poller = zmq.Poller()
     poller.register(handler, zmq.POLLIN)
-
-    # NOTE(lzyeval): For temporary use only!
-    context = nova_context.get_admin_context()
 
     while True:
         socks = dict(poller.poll())
@@ -42,6 +39,7 @@ if __name__ == '__main__':
                 msg_body = utils.loads(msg_json)
                 method = msg_body['method']
                 args = msg_body['args']
+                context = dough_context.get_context(**args)
                 method_func = getattr(api, method)
                 response = method_func(context, **args)
             except Exception, e:

@@ -3,9 +3,8 @@ import unittest
 
 import mox
 
-from nova import context as nova_context
-
 from dough import api
+from dough import context as dough_context
 from dough import db
 
 
@@ -14,8 +13,8 @@ class ApiTestCase(unittest.TestCase):
     def setUp(self):
         super(ApiTestCase, self).setUp()
         self.mox = mox.Mox()
-        self.context = nova_context.get_admin_context()
         self.tenant_id = 'atenant'
+        self.context = dough_context.get_context(tenant_id=self.tenant_id)
         self.resource_uuid = 'a-fake-uuid-0'
         self.resource_name = 'a_fake_name_0'
         self.timestamp = '2012-03-24T16:44:21'
@@ -102,15 +101,15 @@ class ApiTestCase(unittest.TestCase):
                                             AndReturn(self.products)
         db.subscription_create(self.context,
                                {'status': 'creating',
-                                'project_id': self.tenant_id,
+                                'project_id': self.context.project_id,
                                 'product_id': self.product_id,
                                 'resource_uuid': self.resource_uuid}).\
                                         AndReturn(self.subscription)
         self.mox.ReplayAll()
         result = api.subscribe_item(self.context, self.region_name,
                                     self.item_name, self.item_type_name,
-                                    self.payment_type_name, self.tenant_id,
-                                    self.resource_uuid, self.timestamp)
+                                    self.payment_type_name, self.resource_uuid,
+                                    self.timestamp)
         self.mox.VerifyAll()
         self.assertEqual(result, {})
 
@@ -126,15 +125,15 @@ class ApiTestCase(unittest.TestCase):
                                 filters={
                                     'region_id': self.region_id,
                                     'item_id': self.item_id,
-                                    'project_id': self.tenant_id,
+                                    'project_id': self.context.project_id,
                                     'resource_uuid': self.resource_uuid
                                     }).AndReturn(self.subscriptions)
         db.subscription_soft_destroy(self.context, self.subscription_id).\
                 AndReturn(None)
         self.mox.ReplayAll()
         result = api.unsubscribe_item(self.context, self.region_name,
-                                      self.item_name, self.tenant_id,
-                                      self.resource_uuid, self.timestamp)
+                                      self.item_name, self.resource_uuid,
+                                      self.timestamp)
         self.mox.VerifyAll()
         self.assertEqual(result, {})
 
@@ -516,8 +515,9 @@ class ApiTestCase(unittest.TestCase):
                 66, timestamp_from, timestamp_to).\
                         InAnyOrder().AndReturn(purchases8)
         self.mox.ReplayAll()
-        result = api.query_usage_report(self.context, self.tenant_id,
-                                        timestamp_from, timestamp_to)
+        result = api.query_usage_report(self.context,
+                                        timestamp_from,
+                                        timestamp_to)
         self.mox.VerifyAll()
         expect_keys = usage_report.keys().sort()
         actual_keys = result['data'].keys().sort()

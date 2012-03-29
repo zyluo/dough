@@ -41,13 +41,13 @@ def _product_get_all(context, region=None, item=None, item_type=None,
     return products
 
 def subscribe_item(context, region=None, item=None, item_type=None,
-                   payment_type=None, tenant_id=None, resource_uuid=None,
+                   payment_type=None, resource_uuid=None,
                    timestamp=None, **kwargs):
     """
     """
     # values of product
     values = {
-        'project_id': tenant_id,
+        'project_id': context.project_id,
         'resource_uuid': resource_uuid,
         'status': 'creating',
         #'timestamp': timestamp,
@@ -67,12 +67,11 @@ def subscribe_item(context, region=None, item=None, item_type=None,
 
 
 def unsubscribe_item(context, region=None, item=None,
-                     tenant_id=None, resource_uuid=None,
-                     timestamp=None, **kwargs):
+                     resource_uuid=None, timestamp=None, **kwargs):
     """
     """
     filters = {
-        'project_id': tenant_id,
+        'project_id': context.project_id,
         'resource_uuid': resource_uuid,
         #'timestamp': timestamp,
         }
@@ -117,10 +116,11 @@ def query_product_price(context, region=None, item=None, item_type=None,
     return {'data': price_info}
 
 
-def query_usage_report(context, tenant_id=None, timestamp_from=None,
+def query_usage_report(context, timestamp_from=None,
                        timestamp_to=None, **kwargs):
     usage_report = dict()
-    subscriptions = db.subscription_get_all_by_project(context, tenant_id)
+    subscriptions = db.subscription_get_all_by_project(context,
+                                                       context.project_id)
     for subscription in subscriptions:
         subscription_id = subscription['id']
         resource_uuid = subscription['resource_uuid']
