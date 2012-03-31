@@ -41,16 +41,15 @@ def _product_get_all(context, region=None, item=None, item_type=None,
     return products
 
 def subscribe_item(context, region=None, item=None, item_type=None,
-                   payment_type=None, resource_uuid=None,
-                   timestamp=None, **kwargs):
+                   payment_type=None, resource_uuid=None, resource_name=None,
+                   **kwargs):
     """
     """
     # values of product
     values = {
         'project_id': context.project_id,
         'resource_uuid': resource_uuid,
-        'status': 'creating',
-        #'timestamp': timestamp,
+        'resource_name': resource_name,
         }
     try:
         # filter to get product_id
@@ -67,20 +66,19 @@ def subscribe_item(context, region=None, item=None, item_type=None,
 
 
 def unsubscribe_item(context, region=None, item=None,
-                     resource_uuid=None, timestamp=None, **kwargs):
+                     resource_uuid=None, **kwargs):
     """
     """
     filters = {
         'project_id': context.project_id,
         'resource_uuid': resource_uuid,
-        #'timestamp': timestamp,
         }
     try:
         filters['region_id'] = db.region_get_by_name(context, region)['id']
         filters['item_id'] = db.item_get_by_name(context, item)['id']
         subscriptions = db.subscription_get_all(context, filters=filters)
         # TODO(lzyeval): check if subscriptions size is not 1
-        db.subscription_soft_destroy(context, subscriptions[0]['id'])
+        db.subscription_destroy(context, subscriptions[0]['id'])
     except Exception, e:
         # TODO(lzyeval): report
         raise
@@ -116,8 +114,8 @@ def query_product_price(context, region=None, item=None, item_type=None,
     return {'data': price_info}
 
 
-def query_usage_report(context, timestamp_from=None,
-                       timestamp_to=None, **kwargs):
+def query_usage_report(context, datetime_from=None,
+                       datetime_to=None, **kwargs):
     usage_report = dict()
     subscriptions = db.subscription_get_all_by_project(context,
                                                        context.project_id)
@@ -133,8 +131,8 @@ def query_usage_report(context, timestamp_from=None,
         currency = subscription['product']['currency']
         purchases = db.purchase_get_all_by_subscription_and_timeframe(context,
                                                             subscription_id,
-                                                            timestamp_from,
-                                                            timestamp_to)
+                                                            datetime_from,
+                                                            datetime_to)
         quantity_sum = sum(map(lambda x: x['quantity'], purchases))
         line_total_sum = sum(map(lambda x: x['line_total'], purchases))
         # TODO(lzyeval): remove

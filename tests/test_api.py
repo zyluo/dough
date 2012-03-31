@@ -100,16 +100,16 @@ class ApiTestCase(unittest.TestCase):
                                     'payment_type_id': self.payment_type_id}).\
                                             AndReturn(self.products)
         db.subscription_create(self.context,
-                               {'status': 'creating',
-                                'project_id': self.context.project_id,
+                               {'project_id': self.context.project_id,
                                 'product_id': self.product_id,
-                                'resource_uuid': self.resource_uuid}).\
+                                'resource_uuid': self.resource_uuid,
+                                'resource_name': self.resource_name}).\
                                         AndReturn(self.subscription)
         self.mox.ReplayAll()
         result = api.subscribe_item(self.context, self.region_name,
                                     self.item_name, self.item_type_name,
                                     self.payment_type_name, self.resource_uuid,
-                                    self.timestamp)
+                                    self.resource_name)
         self.mox.VerifyAll()
         self.assertEqual(result, {})
 
@@ -117,7 +117,7 @@ class ApiTestCase(unittest.TestCase):
         self.mox.StubOutWithMock(db, 'region_get_by_name')
         self.mox.StubOutWithMock(db, 'item_get_by_name')
         self.mox.StubOutWithMock(db, 'subscription_get_all')
-        self.mox.StubOutWithMock(db, 'subscription_soft_destroy')
+        self.mox.StubOutWithMock(db, 'subscription_destroy')
         db.region_get_by_name(self.context, self.region_name).\
                 AndReturn(self.region)
         db.item_get_by_name(self.context, self.item_name).AndReturn(self.item)
@@ -128,12 +128,11 @@ class ApiTestCase(unittest.TestCase):
                                     'project_id': self.context.project_id,
                                     'resource_uuid': self.resource_uuid
                                     }).AndReturn(self.subscriptions)
-        db.subscription_soft_destroy(self.context, self.subscription_id).\
+        db.subscription_destroy(self.context, self.subscription_id).\
                 AndReturn(None)
         self.mox.ReplayAll()
         result = api.unsubscribe_item(self.context, self.region_name,
-                                      self.item_name, self.resource_uuid,
-                                      self.timestamp)
+                                      self.item_name, self.resource_uuid)
         self.mox.VerifyAll()
         self.assertEqual(result, {})
 
