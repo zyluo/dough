@@ -101,12 +101,12 @@ class Product(models.BASE, models.NovaBase):
                                 backref=backref('products'),
                                 foreign_keys=payment_type_id,
                                 primaryjoin='and_('
-                                            'Product.item_type_id == '
+                                            'Product.payment_type_id == '
                                             'PaymentType.id,'
                                             'Product.deleted == False)')
     measure_type = Column(String(255), nullable=False)
     measure_unit = Column(String(255), nullable=False)
-    price = Column(Float, nullable=False)
+    price = Column(Float(asdecimal=True), nullable=False)
     currency = Column(String(255), nullable=False)
 
 
@@ -146,5 +146,5 @@ class Purchase(models.BASE, models.NovaBase):
                                             'Subscription.id,'
                                             'Purchase.deleted == False)')
     charged_at = Column(DateTime, nullable=False, index=True)
-    quantity = Column(Float, nullable=False)
-    line_total = Column(Float, nullable=False)
+    quantity = Column(Float(asdecimal=True), nullable=False)
+    line_total = Column(Float(asdecimal=True), nullable=False)

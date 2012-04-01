@@ -30,7 +30,9 @@ from sqlalchemy.sql.expression import asc
 from sqlalchemy.sql.expression import desc
 from sqlalchemy.sql.expression import literal_column
 
+from nova import utils
 from nova.db.sqlalchemy.api import model_query
+from nova.db.sqlalchemy.session import get_session
 
 from dough import exception
 from dough.db.sqlalchemy import models
@@ -48,6 +50,14 @@ def region_get(context, region_id):
 
 
 def region_create(context, values):
+    try:
+        region_ref = region_get_by_name(context, values['name'])
+    except exception.RegionNotFoundByName:
+        pass
+    except Exception, e:
+        raise e
+    else:
+        raise Exception()
     region_ref = models.Region()
     region_ref.update(values)
     region_ref.save()
@@ -90,6 +100,14 @@ def item_get(context, item_id):
 
 
 def item_create(context, values):
+    try:
+        item_ref = item_get_by_name(context, values['name'])
+    except exception.ItemNotFoundByName:
+        pass
+    except Exception, e:
+        raise e
+    else:
+        raise Exception()
     item_ref = models.Item()
     item_ref.update(values)
     item_ref.save()
@@ -113,7 +131,7 @@ def item_get_all(context, filters=None):
 
 def item_get_by_name(context, item_name):
     result = model_query(context, models.Item).\
-                     filter_by(name=region_name).\
+                     filter_by(name=item_name).\
                      first()
     if not result:
         raise exception.ItemNotFoundByName(item_name=item_name)
@@ -132,6 +150,14 @@ def item_type_get(context, item_type_id):
 
 
 def item_type_create(context, values):
+    try:
+        item_type_ref = item_type_get_by_name(context, values['name'])
+    except exception.ItemTypeNotFoundByName:
+        pass
+    except Exception, e:
+        raise e
+    else:
+        raise Exception()
     item_type_ref = models.ItemType()
     item_type_ref.update(values)
     item_type_ref.save()
@@ -174,6 +200,14 @@ def payment_type_get(context, payment_type_id):
 
 
 def payment_type_create(context, values):
+    try:
+        payment_type_ref = payment_type_get_by_name(context, values['name'])
+    except exception.PaymentTypeNotFoundByName:
+        pass
+    except Exception, e:
+        raise e
+    else:
+        raise Exception()
     payment_type_ref = models.PaymentType()
     payment_type_ref.update(values)
     payment_type_ref.save()
@@ -196,8 +230,8 @@ def payment_type_get_all(context, filters=None):
 
 
 def payment_type_get_by_name(context, payment_type_name):
-    result = model_query(context, models.ItemType).\
-                     filter_by(name=item_type_name).\
+    result = model_query(context, models.PaymentType).\
+                     filter_by(name=payment_type_name).\
                      first()
     if not result:
         raise exception.PaymentTypeNotFoundByName(
@@ -217,6 +251,9 @@ def product_get(context, product_id):
 
 
 def product_create(context, values):
+    products = product_get_all(context, values)
+    if products:
+        raise Exception()
     product_ref = models.Product()
     product_ref.update(values)
     product_ref.save()
@@ -235,13 +272,18 @@ def product_destroy(context, product_id):
 
 def product_get_all(context, filters=None):
     filters = filters or dict()
+    filters = dict(filter(lambda (x, y): x in ['region_id',
+                                               'item_id',
+                                               'item_type_id',
+                                               'payment_type_id'],
+                          filters.items()))
     return model_query(context, models.Product).filter_by(**filters).all()
 
 # subscriptions
 
 def subscription_get(context, subscription_id):
-    result = model_query(context, models.Product).\
-                     filter_by(id=product_id).\
+    result = model_query(context, models.Subscription).\
+                     filter_by(id=subscription_id).\
                      first()
     if not result:
         raise exception.SubscriptionNotFound(subscription_id=subscription_id)
@@ -249,6 +291,9 @@ def subscription_get(context, subscription_id):
 
 
 def subscription_create(context, values):
+    subscriptions = subscription_get_all(context, values)
+    if subscriptions:
+        raise Exception()
     values = values.copy()
     values['status'] = 'creating'
     subscription_ref = models.Subscription()
@@ -279,6 +324,10 @@ def subscription_confirm(context, subscription_id):
 
 def subscription_get_all(context, filters=None):
     filters = filters or dict()
+    filters = dict(filter(lambda (x, y): x in ['project_id',
+                                               'product_id',
+                                               'resource_uuid'],
+                          filters.items()))
     return model_query(context, models.Subscription).filter_by(**filters).all()
 
 
@@ -318,6 +367,9 @@ def purchase_destroy(context, purchase_id):
 
 def purchase_get_all_by_subscription_and_timeframe(context, subscription_id,
                                                    datetime_from, datetime_to):
-    # TODO(lzyeval): adopt limit
-    filters = filters or dict()
-    return model_query(context, models.Purchase).filter_by(**filters).all()
+    session = get_session()
+    return session.query(models.Purchase).\
+            filter_by(subscription_id=subscription_id).\
+            filter(models.Purchase.charged_at >= datetime_from).\
+            filter(models.Purchase.charged_at < datetime_to).\
+            all()
