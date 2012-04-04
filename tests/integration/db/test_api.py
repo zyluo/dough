@@ -566,6 +566,6 @@ class DBApiTestCase(unittest.TestCase):
         expect = db.purchase_create(self.context, values)
         purchases = db.purchase_get_all_by_subscription_and_timeframe(
                 self.context, expect.subscription_id,
-                datetime.datetime.now() - datetime.timedelta(days=5),
-                datetime.datetime.now() + datetime.timedelta(days=5))
+                datetime.datetime.now() - datetime.timedelta(seconds=3),
+                datetime.datetime.now() + datetime.timedelta(seconds=3))
         self.compare_records(expect, purchases[0])
