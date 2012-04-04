@@ -58,7 +58,8 @@ class PaymentType(models.BASE, models.NovaBase):
     __tablename__ = 'payment_types'
     id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
     name = Column(String(255), nullable=False)
-    interval_sec = Column(Integer, nullable=False)
+    interval_unit = Column(String(255), nullable=False)
+    interval_size = Column(Integer, nullable=False)
     is_prepaid = Column(Boolean, nullable=False, default=False)
 
 
@@ -104,8 +105,8 @@ class Product(models.BASE, models.NovaBase):
                                             'Product.payment_type_id == '
                                             'PaymentType.id,'
                                             'Product.deleted == False)')
-    measure_type = Column(String(255), nullable=False)
-    measure_unit = Column(String(255), nullable=False)
+    order_unit = Column(String(255), nullable=False)
+    order_size = Column(Integer, nullable=False)
     price = Column(Float(asdecimal=True), nullable=False)
     currency = Column(String(255), nullable=False)
 

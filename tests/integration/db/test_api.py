@@ -179,7 +179,8 @@ class DBApiTestCase(unittest.TestCase):
         self.truncate_table("payment_types")
         values = {
             'name': self.payment_type_name,
-            'interval_sec': 3600,
+            'interval_unit': 'hours',
+            'interval_size': 1,
             'is_prepaid': True,
             }
         expect = db.payment_type_create(self.context, values)
@@ -190,7 +191,8 @@ class DBApiTestCase(unittest.TestCase):
         self.truncate_table("payment_types")
         values = {
             'name': self.payment_type_name,
-            'interval_sec': 3600,
+            'interval_unit': 'hours',
+            'interval_size': 1,
             'is_prepaid': True,
             }
         db.payment_type_create(self.context, values)
@@ -201,7 +203,8 @@ class DBApiTestCase(unittest.TestCase):
         self.truncate_table("payment_types")
         values = {
             'name': self.payment_type_name,
-            'interval_sec': 3600,
+            'interval_unit': 'hours',
+            'interval_size': 1,
             'is_prepaid': True,
             }
         expect = db.payment_type_create(self.context, values)
@@ -217,7 +220,8 @@ class DBApiTestCase(unittest.TestCase):
         self.truncate_table("payment_types")
         values = {
             'name': self.payment_type_name,
-            'interval_sec': 3600,
+            'interval_unit': 'hours',
+            'interval_size': 1,
             'is_prepaid': True,
             }
         expect = db.payment_type_create(self.context, values)
@@ -237,15 +241,16 @@ class DBApiTestCase(unittest.TestCase):
                                             {'name': 'an_item_type'})
         payment_type_ref = db.payment_type_create(self.context,
                                                   {'name': 'a_payment_type',
-                                                   'interval_sec': 12345,
+                                                   'interval_unit': 'days',
+                                                   'interval_size': 12345,
                                                    'is_prepaid': False})
         values = {
             'region_id': region_ref.id,
             'item_id': item_ref.id,
             'item_type_id': item_type_ref.id,
             'payment_type_id': payment_type_ref.id,
-            'measure_type': 'some_measure',
-            'measure_unit': 'a_unit',
+            'order_unit': 'some_measure',
+            'order_size': 1,
             'price': 11.24,
             'currency': 'CNY',
             }
@@ -265,15 +270,16 @@ class DBApiTestCase(unittest.TestCase):
                                             {'name': 'an_item_type'})
         payment_type_ref = db.payment_type_create(self.context,
                                                   {'name': 'a_payment_type',
-                                                   'interval_sec': 12345,
+                                                   'interval_unit': 'days',
+                                                   'interval_size': 12345,
                                                    'is_prepaid': False})
         values = {
             'region_id': region_ref.id,
             'item_id': item_ref.id,
             'item_type_id': item_type_ref.id,
             'payment_type_id': payment_type_ref.id,
-            'measure_type': 'some_measure',
-            'measure_unit': 'a_unit',
+            'order_unit': 'some_measure',
+            'order_size': 1,
             'price': 11.24,
             'currency': 'CNY',
             }
@@ -292,15 +298,16 @@ class DBApiTestCase(unittest.TestCase):
                                             {'name': 'an_item_type'})
         payment_type_ref = db.payment_type_create(self.context,
                                                   {'name': 'a_payment_type',
-                                                   'interval_sec': 12345,
+                                                   'interval_unit': 'days',
+                                                   'interval_size': 12345,
                                                    'is_prepaid': False})
         values = {
             'region_id': region_ref.id,
             'item_id': item_ref.id,
             'item_type_id': item_type_ref.id,
             'payment_type_id': payment_type_ref.id,
-            'measure_type': 'some_measure',
-            'measure_unit': 'a_unit',
+            'order_unit': 'some_measure',
+            'order_size': 1,
             'price': 11.24,
             'currency': 'CNY',
             }
@@ -323,15 +330,16 @@ class DBApiTestCase(unittest.TestCase):
                                             {'name': 'an_item_type'})
         payment_type_ref = db.payment_type_create(self.context,
                                                   {'name': 'a_payment_type',
-                                                   'interval_sec': 12345,
+                                                   'interval_unit': 'days',
+                                                   'interval_size': 12345,
                                                    'is_prepaid': False})
         values = {
             'region_id': region_ref.id,
             'item_id': item_ref.id,
             'item_type_id': item_type_ref.id,
             'payment_type_id': payment_type_ref.id,
-            'measure_type': 'some_measure',
-            'measure_unit': 'a_unit',
+            'order_unit': 'some_measure',
+            'order_size': 1,
             'price': 11.24,
             'currency': 'CNY',
             }
@@ -359,15 +367,16 @@ class DBApiTestCase(unittest.TestCase):
                                             {'name': 'an_item_type'})
         payment_type_ref = db.payment_type_create(self.context,
                                                   {'name': 'a_payment_type',
-                                                   'interval_sec': 12345,
+                                                   'interval_unit': 'days',
+                                                   'interval_size': 12345,
                                                    'is_prepaid': False})
         values = {
             'region_id': region_ref.id,
             'item_id': item_ref.id,
             'item_type_id': item_type_ref.id,
             'payment_type_id': payment_type_ref.id,
-            'measure_type': 'some_measure',
-            'measure_unit': 'a_unit',
+            'order_unit': 'some_measure',
+            'order_size': 1,
             'price': 11.24,
             'currency': 'CNY',
             }
@@ -395,15 +404,16 @@ class DBApiTestCase(unittest.TestCase):
                                             {'name': 'an_item_type'})
         payment_type_ref = db.payment_type_create(self.context,
                                                   {'name': 'a_payment_type',
-                                                   'interval_sec': 12345,
+                                                   'interval_unit': 'days',
+                                                   'interval_size': 12345,
                                                    'is_prepaid': False})
         values = {
             'region_id': region_ref.id,
             'item_id': item_ref.id,
             'item_type_id': item_type_ref.id,
             'payment_type_id': payment_type_ref.id,
-            'measure_type': 'some_measure',
-            'measure_unit': 'a_unit',
+            'order_unit': 'some_measure',
+            'order_size': 1,
             'price': 11.24,
             'currency': 'CNY',
             }
@@ -434,15 +444,16 @@ class DBApiTestCase(unittest.TestCase):
                                             {'name': 'an_item_type'})
         payment_type_ref = db.payment_type_create(self.context,
                                                   {'name': 'a_payment_type',
-                                                   'interval_sec': 12345,
+                                                   'interval_unit': 'days',
+                                                   'interval_size': 12345,
                                                    'is_prepaid': False})
         values = {
             'region_id': region_ref.id,
             'item_id': item_ref.id,
             'item_type_id': item_type_ref.id,
             'payment_type_id': payment_type_ref.id,
-            'measure_type': 'some_measure',
-            'measure_unit': 'a_unit',
+            'order_unit': 'some_measure',
+            'order_size': 1,
             'price': 11.24,
             'currency': 'CNY',
             }
@@ -478,15 +489,16 @@ class DBApiTestCase(unittest.TestCase):
                                             {'name': 'an_item_type'})
         payment_type_ref = db.payment_type_create(self.context,
                                                   {'name': 'a_payment_type',
-                                                   'interval_sec': 12345,
+                                                   'interval_unit': 'days',
+                                                   'interval_size': 12345,
                                                    'is_prepaid': False})
         values = {
             'region_id': region_ref.id,
             'item_id': item_ref.id,
             'item_type_id': item_type_ref.id,
             'payment_type_id': payment_type_ref.id,
-            'measure_type': 'some_measure',
-            'measure_unit': 'a_unit',
+            'order_unit': 'some_measure',
+            'order_size': 1,
             'price': 11.24,
             'currency': 'CNY',
             }
@@ -524,15 +536,16 @@ class DBApiTestCase(unittest.TestCase):
                                             {'name': 'an_item_type'})
         payment_type_ref = db.payment_type_create(self.context,
                                                   {'name': 'a_payment_type',
-                                                   'interval_sec': 12345,
+                                                   'interval_unit': 'days',
+                                                   'interval_size': 12345,
                                                    'is_prepaid': False})
         values = {
             'region_id': region_ref.id,
             'item_id': item_ref.id,
             'item_type_id': item_type_ref.id,
             'payment_type_id': payment_type_ref.id,
-            'measure_type': 'some_measure',
-            'measure_unit': 'a_unit',
+            'order_unit': 'some_measure',
+            'order_size': 1,
             'price': 11.24,
             'currency': 'CNY',
             }
@@ -553,6 +566,6 @@ class DBApiTestCase(unittest.TestCase):
         expect = db.purchase_create(self.context, values)
         purchases = db.purchase_get_all_by_subscription_and_timeframe(
                 self.context, expect.subscription_id,
-                datetime.datetime.now() - datetime.timedelta(seconds=5),
-                datetime.datetime.now() + datetime.timedelta(seconds=5))
+                datetime.datetime.now() - datetime.timedelta(days=5),
+                datetime.datetime.now() + datetime.timedelta(days=5))
         self.compare_records(expect, purchases[0])

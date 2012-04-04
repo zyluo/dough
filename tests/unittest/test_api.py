@@ -199,7 +199,8 @@ class ApiTestCase(unittest.TestCase):
                     'item_type': {
                         'name': self.item_type_name,
                         },
-                    'measure_unit': 'hours',
+                    'order_unit': 'hours',
+                    'order_size': 1,
                     'price': self.product_price,
                     'currency': 'CNY',
                     }
@@ -218,7 +219,8 @@ class ApiTestCase(unittest.TestCase):
                     'item_type': {
                         'name': 'm1.large',
                         },
-                    'measure_unit': 'months',
+                    'order_unit': 'months',
+                    'order_size': 1,
                     'price': Decimal(2100.00).quantize(Decimal('0.01')),
                     'currency': 'CNY',
                     }
@@ -237,7 +239,8 @@ class ApiTestCase(unittest.TestCase):
                     'item_type': {
                         'name': 'default',
                         },
-                    'measure_unit': 'days',
+                    'order_unit': 'days',
+                    'order_size': 1,
                     'price': Decimal(1.10).quantize(Decimal('0.01')),
                     'currency': 'CNY',
                     }
@@ -256,7 +259,8 @@ class ApiTestCase(unittest.TestCase):
                     'item_type': {
                         'name': 'default',
                         },
-                    'measure_unit': 'days',
+                    'order_unit': 'days',
+                    'order_size': 1,
                     'price': Decimal(1.10).quantize(Decimal('0.01')),
                     'currency': 'CNY',
                     }
@@ -275,7 +279,8 @@ class ApiTestCase(unittest.TestCase):
                     'item_type': {
                         'name': 'default',
                         },
-                    'measure_unit': 'days',
+                    'order_unit': 'days',
+                    'order_size': 1,
                     'price': Decimal(2.70).quantize(Decimal('0.01')),
                     'currency': 'CNY',
                     }
@@ -294,7 +299,8 @@ class ApiTestCase(unittest.TestCase):
                     'item_type': {
                         'name': 'default',
                         },
-                    'measure_unit': 'days',
+                    'order_unit': 'days',
+                    'order_size': 1,
                     'price': Decimal(2.70).quantize(Decimal('0.01')),
                     'currency': 'CNY',
                     }
@@ -313,7 +319,8 @@ class ApiTestCase(unittest.TestCase):
                     'item_type': {
                         'name': 'default',
                         },
-                    'measure_unit': 'KBytes',
+                    'order_unit': 'KBytes',
+                    'order_size': 1,
                     'price': Decimal(0.70).quantize(Decimal('0.01')),
                     'currency': 'CNY',
                     }
@@ -332,7 +339,8 @@ class ApiTestCase(unittest.TestCase):
                     'item_type': {
                         'name': 'default',
                         },
-                    'measure_unit': 'KBytes',
+                    'order_unit': 'KBytes',
+                    'order_size': 1,
                     'price': Decimal(0.70).quantize(Decimal('0.01')),
                     'currency': 'CNY',
                     }

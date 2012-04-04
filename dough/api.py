@@ -126,7 +126,7 @@ def query_usage_report(context, datetime_from=None,
         region_name = subscription['product']['region']['name']
         item_name = subscription['product']['item']['name']
         item_type_name = subscription['product']['item_type']['name']
-        measure_unit = subscription['product']['measure_unit']
+        order_unit = subscription['product']['order_unit']
         price = subscription['product']['price']
         currency = subscription['product']['currency']
         purchases = db.purchase_get_all_by_subscription_and_timeframe(context,
@@ -138,7 +138,7 @@ def query_usage_report(context, datetime_from=None,
         # TODO(lzyeval): remove
         #assert (line_total_sum == quantity_sum * price)
         usage_datum = (resource_uuid, resource_name, item_type_name,
-                       measure_unit, price, currency, quantity_sum,
+                       order_unit, price, currency, quantity_sum,
                        line_total_sum)
         item_usage_report = usage_report.get(item_name, dict())
         if not item_usage_report:
