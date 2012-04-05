@@ -302,6 +302,15 @@ def subscription_create(context, values):
     return subscription_ref
 
 
+def subscription_extend(context, subscription_id, datetime_to):
+    session = get_session()
+    with session.begin():
+        session.query(models.Subscription).\
+                filter_by(id=subscription_id).\
+                update({'expires_at': datetime_to,
+                        'updated_at': literal_column('updated_at')})
+
+
 def subscription_destroy(context, subscription_id):
     session = get_session()
     with session.begin():
@@ -313,12 +322,21 @@ def subscription_destroy(context, subscription_id):
                         'updated_at': literal_column('updated_at')})
 
 
-def subscription_confirm(context, subscription_id):
+def subscription_verify(context, subscription_id):
     session = get_session()
     with session.begin():
         session.query(models.Subscription).\
                 filter_by(id=subscription_id).\
-                update({'status': 'complete',
+                update({'status': 'verified',
+                        'updated_at': literal_column('updated_at')})
+
+
+def subscription_error(context, subscription_id):
+    session = get_session()
+    with session.begin():
+        session.query(models.Subscription).\
+                filter_by(id=subscription_id).\
+                update({'status': 'error',
                         'updated_at': literal_column('updated_at')})
 
 
@@ -365,11 +383,22 @@ def purchase_destroy(context, purchase_id):
                         'updated_at': literal_column('updated_at')})
 
 
+def purchase_get_by_subscription_recent(context, subscription_id):
+    result = model_query(context, models.Purchase).\
+                     filter_by(subscription_id=subscription_id).\
+                     order_by(desc(models.Purchase.created_at)).\
+                     first()
+    if not result:
+        raise exception.PurchaseNotFoundBySubscription(
+                subscription_id=subscription_id)
+    return result
+
+
 def purchase_get_all_by_subscription_and_timeframe(context, subscription_id,
                                                    datetime_from, datetime_to):
     session = get_session()
     return session.query(models.Purchase).\
             filter_by(subscription_id=subscription_id).\
-            filter(models.Purchase.charged_at >= datetime_from).\
-            filter(models.Purchase.charged_at < datetime_to).\
+            filter(models.Purchase.created_at >= datetime_from).\
+            filter(models.Purchase.created_at < datetime_to).\
             all()

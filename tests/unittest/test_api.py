@@ -1,6 +1,8 @@
+import datetime
 from decimal import Decimal
 import unittest
 
+from dateutil.relativedelta import relativedelta
 import mox
 
 from dough import api
@@ -17,7 +19,8 @@ class ApiTestCase(unittest.TestCase):
         self.context = dough_context.get_context(tenant_id=self.tenant_id)
         self.resource_uuid = 'a-fake-uuid-0'
         self.resource_name = 'a_fake_name_0'
-        self.timestamp = '2012-03-24T16:44:21'
+        self.created_at = datetime.datetime.now()
+        self.expires_at = self.created_at + relativedelta(days=1)
         self.region_id = 1
         self.region_name = 'default'
         self.region = {
@@ -70,7 +73,31 @@ class ApiTestCase(unittest.TestCase):
             ]
         self.subscription_id = 6
         self.subscription = {
+            'created_at': self.created_at,
             'id': self.subscription_id,
+            'resource_uuid': self.resource_uuid,
+            'resource_name': self.resource_name,
+            'product': {
+                'region': {
+                    'name': self.region_name,
+                    },
+                'item': {
+                    'name': self.item_name,
+                    },
+                'item_type': {
+                    'name': self.item_type_name,
+                    },
+                'payment_type': {
+                    'id': self.payment_type_id,
+                    'name': self.payment_type_name,
+                    'interval_unit': 'days',
+                    'interval_size': 1,
+                    },
+                'order_unit': 'hours',
+                'order_size': 1,
+                'price': self.product_price,
+                'currency': 'CNY',
+                }
             }
         self.subscriptions = [{
             'id': self.subscription_id,
@@ -86,6 +113,7 @@ class ApiTestCase(unittest.TestCase):
         self.mox.StubOutWithMock(db, 'payment_type_get_by_name')
         self.mox.StubOutWithMock(db, 'product_get_all')
         self.mox.StubOutWithMock(db, 'subscription_create')
+        self.mox.StubOutWithMock(db, 'subscription_extend')
         db.region_get_by_name(self.context, self.region_name).\
                 AndReturn(self.region)
         db.item_get_by_name(self.context, self.item_name).AndReturn(self.item)
@@ -105,6 +133,9 @@ class ApiTestCase(unittest.TestCase):
                                 'resource_uuid': self.resource_uuid,
                                 'resource_name': self.resource_name}).\
                                         AndReturn(self.subscription)
+        db.subscription_extend(self.context, self.subscription_id,
+                self.expires_at).\
+                        AndReturn(None)
         self.mox.ReplayAll()
         result = api.subscribe_item(self.context, self.region_name,
                                     self.item_name, self.item_type_name,

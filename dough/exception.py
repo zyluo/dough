@@ -68,3 +68,8 @@ class SubscriptionNotFound(exception.NotFound):
 
 class PurchaseNotFound(exception.NotFound):
     message = _("Purchase %(purchase_id)s could not be found.")
+
+
+class PurchaseNotFoundBySubscription(exception.NotFound):
+    message = _("Purchase of subscription %(subscription_id)s "
+                "could not be found.")

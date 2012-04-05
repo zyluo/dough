@@ -128,6 +128,7 @@ class Subscription(models.BASE, models.NovaBase):
                                        'Subscription.deleted == False)')
     resource_uuid = Column(String(255), nullable=False, index=True)
     resource_name = Column(String(255), nullable=False)
+    expires_at = Column(DateTime, nullable=False, index=True)
     status = Column(String(255), nullable=False)
 
 
@@ -146,6 +147,5 @@ class Purchase(models.BASE, models.NovaBase):
                                             'Purchase.subscription_id == '
                                             'Subscription.id,'
                                             'Purchase.deleted == False)')
-    charged_at = Column(DateTime, nullable=False, index=True)
     quantity = Column(Float(asdecimal=True), nullable=False)
     line_total = Column(Float(asdecimal=True), nullable=False)

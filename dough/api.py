@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
 
+from dateutil.relativedelta import relativedelta
+
 from nova import flags
 from nova import utils
 from nova.openstack.common import cfg
@@ -59,6 +61,13 @@ def subscribe_item(context, region=None, item=None, item_type=None,
         # TODO(lzyeval): check if products size is not 1
         values['product_id'] = products[0]['id']
         subscription_ref = db.subscription_create(context, values)
+        _ref = subscription_ref['product']['payment_type']
+        interval_info = {
+                _ref['interval_unit']: _ref['interval_size'],
+                }
+        db.subscription_extend(context, subscription_ref['id'],
+                               subscription_ref['created_at'] +
+                               relativedelta(**interval_info))
     except Exception, e:
         # TODO(lzyeval): report
         raise
