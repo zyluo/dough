@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+# -*- coding: utf8 -*-
+
+import datetime
+import sys
+import time
+import traceback
+
+from dateutil.relativedelta import relativedelta
+import zmq
+
+from nova import flags
+from nova import log as logging
+from nova import utils
+
+from dough import api
+from dough import billing
+from dough import context as dough_context
+from dough import db
+from dough import exception
+
+utils.default_flagfile(filename='/etc/dough/dough.conf')
+flags.FLAGS(sys.argv)
+logging.setup()
+
+FLAGS = flags.FLAGS
+
+if __name__ == '__main__':
+    context = dough_context.get_admin_context()
+    while True:
+        subscriptions = db.subscription_get_all(context)
+        for sub in subscriptions:
+            subscription_id = sub['id']
+            status = sub['status']
+            tenant_id = sub['project_id']
+            resource_uuid = sub['resource_uuid']
+            created_at = sub['created_at']
+            deleted_at = sub['deleted_at']
+            expires_at = sub['expires_at']
+
+            order_unit = sub['product']['order_unit']
+            order_size = sub['product']['order_size']
+            price = sub['product']['price']
+            currency = sub['product']['currency']
+
+            region_name = sub['product']['region']['name']
+            item_name = sub['product']['item']['name']
+            pay_type = sub['product']['payment_type']
+            interval_unit = pay_type['interval_unit']
+            interval_size = pay_type['interval_size']
+            is_prepaid = pay_type['is_prepaid']
+
+            action = getattr(billing, status)
+            action(context, subscription_id, tenant_id, resource_uuid,
+                   created_at, deleted_at, expires_at,
+                   order_unit, order_size, price, currency, region_name,
+                   item_name, interval_unit, interval_size, is_prepaid)
+        time.sleep(600)
