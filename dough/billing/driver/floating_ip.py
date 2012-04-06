@@ -1,0 +1,41 @@
+from novaclient.v1_1 import client
+
+from nova import flags
+from nova.openstack.common import cfg
+
+
+floating_ip_opts = [
+    cfg.StrOpt('keystone_username',
+               default='someusername',
+               help='Username for keystone client.'),
+    cfg.StrOpt('keystone_password',
+               default='somepassword',
+               help='Password for keystone client.'),
+    cfg.StrOpt('keystone_tenant_name',
+               default='sometenantname',
+               help='Tenant name for keystone client.'),
+    cfg.StrOpt('keystone_auth_url',
+               default='someurl',
+               help='Auth URL for keystone client.'),
+    ]
+
+FLAGS = flags.FLAGS
+FLAGS.register_opts(floating_ip_opts)
+
+
+def is_running(floating_ip_uuid):
+    return not is_terminated(floating_ip_uuid)
+
+
+def is_terminated(floating_ip_uuid):
+    # TODO(lzyeval): handle error
+    nt = client.Client(FLAGS.keystone_username,
+                       FLAGS.keystone_password,
+                       FLAGS.keystone_tenant_name,
+                       FLAGS.keystone_auth_url)
+    floating_ip = nt.floating_ips.get(floating_ip_uuid)
+    return floating_ip.deleted
+
+
+def get_usage(floating_ip_uuid, datetime_from, datetime_to, order_size):
+    return order_size

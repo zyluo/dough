@@ -1,22 +1,41 @@
-#!/usr/bin/env python
-# -*- coding: utf8 -*-
+from novaclient.v1_1 import client
 
-class InstanceBillingManager(object):
+from nova import flags
+from nova.openstack.common import cfg
 
-    def __init__(self):
-        print "instance manager created"
 
-    def is_active(self):
-        print "instance is active"
+instance_opts = [
+    cfg.StrOpt('keystone_username',
+               default='someusername',
+               help='Username for keystone client.'),
+    cfg.StrOpt('keystone_password',
+               default='somepassword',
+               help='Password for keystone client.'),
+    cfg.StrOpt('keystone_tenant_name',
+               default='sometenantname',
+               help='Tenant name for keystone client.'),
+    cfg.StrOpt('keystone_auth_url',
+               default='someurl',
+               help='Auth URL for keystone client.'),
+    ]
 
-    def is_prepaid(self):
-        print "instance is active"
+FLAGS = flags.FLAGS
+FLAGS.register_opts(instance_opts)
 
-    def register(self):
-        print "instance subscribed"
 
-    def unregister(self):
-        print "instance unsubscribed"
+def is_running(instance_uuid):
+    return not is_terminated(instance_uuid)
 
-    def purchase(self):
-        print "instance purchased"
+
+def is_terminated(instance_uuid):
+    # TODO(lzyeval): handle error
+    nt = client.Client(FLAGS.keystone_username,
+                       FLAGS.keystone_password,
+                       FLAGS.keystone_tenant_name,
+                       FLAGS.keystone_auth_url)
+    instance = nt.instances.get(instance_uuid)
+    return instance.deleted
+
+
+def get_usage(instance_uuid, datetime_from, datetime_to, order_size):
+    return order_size
