@@ -87,11 +87,6 @@ def verified(context, subscription_id, tenant_id, resource_uuid,
                            expires_at + relativedelta(**interval_info))
 
 
-def terminated(*args, **kwargs):
-    # TODO(lzyeval): report
-    return
-
-
 def error(*args, **kwargs):
     # TODO(lzyeval): report
     return

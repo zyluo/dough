@@ -302,23 +302,23 @@ def subscription_create(context, values):
     return subscription_ref
 
 
-def subscription_extend(context, subscription_id, datetime_to):
+def subscription_destroy(context, subscription_id):
     session = get_session()
     with session.begin():
         session.query(models.Subscription).\
                 filter_by(id=subscription_id).\
-                update({'expires_at': datetime_to,
+                update({'status': 'deleting',
                         'updated_at': literal_column('updated_at')})
 
 
-def subscription_destroy(context, subscription_id):
+def subscription_delete(context, subscription_id):
     session = get_session()
     with session.begin():
         session.query(models.Subscription).\
                 filter_by(id=subscription_id).\
                 update({'deleted': True,
                         'deleted_at': utils.utcnow(),
-                        'status': 'deleting',
+                        'status': 'deleted',
                         'updated_at': literal_column('updated_at')})
 
 
@@ -337,6 +337,15 @@ def subscription_error(context, subscription_id):
         session.query(models.Subscription).\
                 filter_by(id=subscription_id).\
                 update({'status': 'error',
+                        'updated_at': literal_column('updated_at')})
+
+
+def subscription_extend(context, subscription_id, datetime_to):
+    session = get_session()
+    with session.begin():
+        session.query(models.Subscription).\
+                filter_by(id=subscription_id).\
+                update({'expires_at': datetime_to,
                         'updated_at': literal_column('updated_at')})
 
 

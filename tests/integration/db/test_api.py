@@ -391,6 +391,45 @@ class DBApiTestCase(unittest.TestCase):
         self.assertRaises(Exception, db.subscription_create,
                           self.context, values)
 
+    def test_subscription_destroy(self):
+        self.truncate_table("regions")
+        self.truncate_table("items")
+        self.truncate_table("item_types")
+        self.truncate_table("payment_types")
+        self.truncate_table("products")
+        self.truncate_table("subscriptions")
+        region_ref = db.region_create(self.context, {'name': 'a_region'})
+        item_ref = db.item_create(self.context, {'name': 'an_item'})
+        item_type_ref = db.item_type_create(self.context,
+                                            {'name': 'an_item_type'})
+        payment_type_ref = db.payment_type_create(self.context,
+                                                  {'name': 'a_payment_type',
+                                                   'interval_unit': 'days',
+                                                   'interval_size': 12345,
+                                                   'is_prepaid': False})
+        values = {
+            'region_id': region_ref.id,
+            'item_id': item_ref.id,
+            'item_type_id': item_type_ref.id,
+            'payment_type_id': payment_type_ref.id,
+            'order_unit': 'some_measure',
+            'order_size': 1,
+            'price': 11.24,
+            'currency': 'CNY',
+            }
+        product_ref = db.product_create(self.context, values)
+        values = {
+            'project_id': self.context.project_id,
+            'product_id': product_ref.id,
+            'resource_uuid': self.resource_uuid,
+            'resource_name': self.resource_name,
+            }
+        expect = db.subscription_create(self.context, values)
+        db.subscription_destroy(self.context, expect.id)
+        actual = db.subscription_get(self.context, expect.id)
+        expect.status = "deleting"
+        self.compare_records(expect, actual)
+
     def test_subscription_extend(self):
         self.truncate_table("regions")
         self.truncate_table("items")
@@ -430,7 +469,7 @@ class DBApiTestCase(unittest.TestCase):
         actual = db.subscription_get(self.context, expect.id)
         self.assertEqual(datetime_to.day, actual['expires_at'].day)
 
-    def test_subscription_destroy(self):
+    def test_subscription_delete(self):
         self.truncate_table("regions")
         self.truncate_table("items")
         self.truncate_table("item_types")
@@ -464,7 +503,7 @@ class DBApiTestCase(unittest.TestCase):
             'resource_name': self.resource_name,
             }
         expect = db.subscription_create(self.context, values)
-        db.subscription_destroy(self.context, expect.id)
+        db.subscription_delete(self.context, expect.id)
         self.assertRaises(exception.SubscriptionNotFound,
                           db.subscription_get,
                           self.context, expect.id)

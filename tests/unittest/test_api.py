@@ -2,7 +2,6 @@ import datetime
 from decimal import Decimal
 import unittest
 
-from dateutil.relativedelta import relativedelta
 import mox
 
 from dough import api
@@ -20,7 +19,6 @@ class ApiTestCase(unittest.TestCase):
         self.resource_uuid = 'a-fake-uuid-0'
         self.resource_name = 'a_fake_name_0'
         self.created_at = datetime.datetime.now()
-        self.expires_at = self.created_at + relativedelta(days=1)
         self.region_id = 1
         self.region_name = 'default'
         self.region = {
@@ -134,8 +132,7 @@ class ApiTestCase(unittest.TestCase):
                                 'resource_name': self.resource_name}).\
                                         AndReturn(self.subscription)
         db.subscription_extend(self.context, self.subscription_id,
-                self.expires_at).\
-                        AndReturn(None)
+                               self.created_at).AndReturn(None)
         self.mox.ReplayAll()
         result = api.subscribe_item(self.context, self.region_name,
                                     self.item_name, self.item_type_name,
