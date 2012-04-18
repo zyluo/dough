@@ -6,18 +6,6 @@ from nova.openstack.common import cfg
 
 
 network_opts = [
-    cfg.StrOpt('keystone_username',
-               default='someusername',
-               help='Username for keystone client.'),
-    cfg.StrOpt('keystone_password',
-               default='somepassword',
-               help='Password for keystone client.'),
-    cfg.StrOpt('keystone_tenant_name',
-               default='sometenantname',
-               help='Tenant name for keystone client.'),
-    cfg.StrOpt('keystone_auth_url',
-               default='someurl',
-               help='Auth URL for keystone client.'),
     cfg.StrOpt('kanyun_url',
                default='someurl',
                help='URL for kanyun client.'),

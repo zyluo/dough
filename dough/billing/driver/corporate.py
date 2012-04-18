@@ -10,18 +10,6 @@ from nova.openstack.common import cfg
 
 
 corporate_opts = [
-    cfg.StrOpt('keystone_username',
-               default='someusername',
-               help='Username for keystone client.'),
-    cfg.StrOpt('keystone_password',
-               default='somepassword',
-               help='Password for keystone client.'),
-    cfg.StrOpt('keystone_tenant_name',
-               default='sometenantname',
-               help='Tenant name for keystone client.'),
-    cfg.StrOpt('keystone_auth_url',
-               default='someurl',
-               help='Auth URL for keystone client.'),
     cfg.StrOpt('corporate_user_key',
                default='somekey',
                help='User ID key for corporate account.'),
