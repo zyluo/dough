@@ -32,7 +32,8 @@ def is_terminated(instance_uuid):
     nt = client.Client(FLAGS.keystone_username,
                        FLAGS.keystone_password,
                        FLAGS.keystone_tenant_name,
-                       FLAGS.keystone_auth_url)
+                       FLAGS.keystone_auth_url,
+                       service_type="compute")
     instance = nt.servers.get(instance_uuid)
     return not instance.status=="ACTIVE"
 
