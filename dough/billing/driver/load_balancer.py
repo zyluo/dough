@@ -1,4 +1,4 @@
-from demuxclient import client
+from demux.client import client
 
 from nova import flags
 from nova.openstack.common import cfg

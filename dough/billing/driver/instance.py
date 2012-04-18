@@ -33,8 +33,8 @@ def is_terminated(instance_uuid):
                        FLAGS.keystone_password,
                        FLAGS.keystone_tenant_name,
                        FLAGS.keystone_auth_url)
-    instance = nt.instances.get(instance_uuid)
-    return instance.deleted
+    instance = nt.servers.get(instance_uuid)
+    return not instance.status=="ACTIVE"
 
 
 def get_usage(instance_uuid, datetime_from, datetime_to, order_size):

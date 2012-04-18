@@ -1,5 +1,5 @@
 from novaclient.v1_1 import client
-from kanyunclient import api_client
+from kanyun.client import api_client
 
 from nova import flags
 from nova.openstack.common import cfg
@@ -39,9 +39,10 @@ def is_terminated(instance_uuid):
     nt = client.Client(FLAGS.keystone_username,
                        FLAGS.keystone_password,
                        FLAGS.keystone_tenant_name,
-                       FLAGS.keystone_auth_url)
-    instance = nt.instances.get(instance_uuid)
-    return instance.deleted
+                       FLAGS.keystone_auth_url,
+                       service_type="compute")
+    instance = nt.servers.get(instance_uuid)
+    return instance.status == "ACTIVE"
 
 
 def get_usage(instance_uuid, datetime_from, datetime_to, order_size):
