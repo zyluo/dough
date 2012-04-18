@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
 
+import iso8601
+
 from nova import flags
 from nova import utils
 from nova.openstack.common import cfg
@@ -117,9 +119,11 @@ def query_product_price(context, region=None, item=None, item_type=None,
     return {'data': price_info}
 
 
-def query_usage_report(context, datetime_from=None,
-                       datetime_to=None, **kwargs):
+def query_usage_report(context, timestamp_from=None,
+                       timestamp_to=None, **kwargs):
     usage_report = dict()
+    datetime_from = iso8601.parse_date(timestamp_from)
+    datetime_to = iso8601.parse_date(timestamp_to)
     subscriptions = db.subscription_get_all_by_project(context,
                                                        context.project_id)
     for subscription in subscriptions:

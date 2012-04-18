@@ -1,8 +1,9 @@
-import datetime
 from decimal import Decimal
 import unittest
 
 import mox
+
+from nova import utils
 
 from dough import api
 from dough import context as dough_context
@@ -18,7 +19,7 @@ class ApiTestCase(unittest.TestCase):
         self.context = dough_context.get_context(tenant_id=self.tenant_id)
         self.resource_uuid = 'a-fake-uuid-0'
         self.resource_name = 'a_fake_name_0'
-        self.created_at = datetime.datetime.now()
+        self.created_at = utils.utcnow()
         self.region_id = 1
         self.region_name = 'default'
         self.region = {
