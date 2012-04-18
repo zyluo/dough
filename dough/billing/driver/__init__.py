@@ -5,4 +5,4 @@ from dough.billing.driver import network as network_conn
 from dough.billing.driver import corporate as corporate_conn
 
 def get_connection(item_name):
-    return locals()["%s_conn" % item_name]
+    return globals()["%s_conn" % item_name]

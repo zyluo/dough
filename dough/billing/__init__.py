@@ -42,7 +42,7 @@ def creating(context, subscription_id, tenant_id, resource_uuid,
             quantity = conn.get_usage(resource_uuid,
                     expires_at - relativedelta(**interval_info),
                     expires_at, order_size)
-            charge(context, subscription_id, quantity, order_size, price):
+            charge(context, tenant_id, subscription_id, quantity, order_size, price)
         db.subscription_extend(context, subscription_id,
                                expires_at + relativedelta(**interval_info))
 
@@ -58,15 +58,15 @@ def deleting(context, subscription_id, tenant_id, resource_uuid,
             # TODO(lzyeval): report
     else:
         # TODO(lzyeval): implement
-        db.subscription_terminate(context, subscription_id)
-        if not payment_type['is_prepaid']:
+        db.subscription_destroy(context, subscription_id)
+        if not is_prepaid:
             interval_info = {
                 interval_unit: interval_size,
                 }
             quantity = conn.get_usage(resource_uuid,
                     expires_at - relativedelta(**interval_info),
                     expires_at, order_size)
-            charge(context, subscription_id, quantity, order_size, price):
+            charge(context, tenant_id, subscription_id, quantity, order_size, price)
 
 
 def verified(context, subscription_id, tenant_id, resource_uuid,
@@ -82,7 +82,7 @@ def verified(context, subscription_id, tenant_id, resource_uuid,
     quantity = conn.get_usage(resource_uuid,
                               expires_at - relativedelta(**interval_info),
                               expires_at, order_size)
-    charge(context, subscription_id, quantity, order_size, price):
+    charge(context, tenant_id, subscription_id, quantity, order_size, price)
     db.subscription_extend(context, subscription_id,
                            expires_at + relativedelta(**interval_info))
 
