@@ -1,6 +1,7 @@
 from decimal import Decimal
 import unittest
 
+import iso8601
 import mox
 
 from nova import utils
@@ -213,6 +214,8 @@ class ApiTestCase(unittest.TestCase):
     def test_query_usage_report(self):
         timestamp_from = '2012-03-24T16:44:21'
         timestamp_to = '2012-03-24T16:46:21'
+        datetime_from = iso8601.parse_date(timestamp_from)
+        datetime_to = iso8601.parse_date(timestamp_to)
         project_subscriptions = [
             {
                 'id': self.subscription_id,
@@ -483,41 +486,34 @@ class ApiTestCase(unittest.TestCase):
             'load_balancer': {
                 'default': [
                     ('a-fake-uuid-4', 'a_fake_name_4', 'default', 'days',
-                     Decimal(2.70).quantize(Decimal('0.01')), 'CNY', 13,
-                     Decimal(35.10).quantize(Decimal('0.01')),),
+                     2.70, 'CNY', 13, 35.10),
                     ('a-fake-uuid-5', 'a_fake_name_5', 'default', 'days',
-                     Decimal(2.70).quantize(Decimal('0.01')), 'CNY', 27,
-                     Decimal(72.90).quantize(Decimal('0.01')),),
+                     2.70, 'CNY', 27, 72.90),
                     ]
                 },
             'instance': {
                 'default': [
                     (self.resource_uuid, self.resource_name,
-                     self.item_type_name, 'hours', self.product_price, 'CNY',
-                     16, Decimal(38.40).quantize(Decimal('0.01')),),
+                     self.item_type_name, 'hours',
+                     float(self.product_price), 'CNY', 16, 38.40),
                     ('a-fake-uuid-1', 'a_fake_name_1', 'm1.large', 'months',
-                     Decimal(2100.00).quantize(Decimal('0.01')), 'CNY', 1,
-                     Decimal(2100.00).quantize(Decimal('0.01')),),
+                     2100.00, 'CNY', 1, 2100.00),
                     ],
                 },
             'floating_ip': {
                 'default': [
                     ('a-fake-uuid-2', '10.211.23.45', 'default', 'days',
-                     Decimal(1.10).quantize(Decimal('0.01')), 'CNY', 19,
-                     Decimal(20.90).quantize(Decimal('0.01')),),
+                     1.10, 'CNY', 19, 20.90),
                     ('a-fake-uuid-3', '170.1.223.5', 'default', 'days',
-                     Decimal(1.10).quantize(Decimal('0.01')), 'CNY', 11,
-                     Decimal(12.10).quantize(Decimal('0.01')),),
+                     1.10, 'CNY', 11, 12.10),
                     ],
                 },
             'network-out': {
                 'default': [
                     (self.resource_uuid, '192.168.0.2', 'default', 'KBytes',
-                     Decimal(0.70).quantize(Decimal('0.01')), 'CNY', 1852,
-                     Decimal(1296.40).quantize(Decimal('0.01')),),
+                     0.70, 'CNY', 1852, 1296.40),
                     ('a-fake-uuid-1', '192.168.0.3', 'default', 'KBytes',
-                     Decimal(0.70).quantize(Decimal('0.01')), 'CNY', 9853,
-                     Decimal(6897.10).quantize(Decimal('0.01')),),
+                     0.70, 'CNY', 9853, 6897.10),
                     ]
                 },
             }
@@ -527,28 +523,28 @@ class ApiTestCase(unittest.TestCase):
         db.subscription_get_all_by_project(self.context, self.tenant_id).\
                 AndReturn(project_subscriptions)
         db.purchase_get_all_by_subscription_and_timeframe(self.context,
-                self.subscription_id, timestamp_from, timestamp_to).\
+                self.subscription_id, datetime_from, datetime_to).\
                         InAnyOrder().AndReturn(purchases1)
         db.purchase_get_all_by_subscription_and_timeframe(self.context,
-                60, timestamp_from, timestamp_to).\
+                60, datetime_from, datetime_to).\
                         InAnyOrder().AndReturn(purchases2)
         db.purchase_get_all_by_subscription_and_timeframe(self.context,
-                61, timestamp_from, timestamp_to).\
+                61, datetime_from, datetime_to).\
                         InAnyOrder().AndReturn(purchases3)
         db.purchase_get_all_by_subscription_and_timeframe(self.context,
-                62, timestamp_from, timestamp_to).\
+                62, datetime_from, datetime_to).\
                         InAnyOrder().AndReturn(purchases4)
         db.purchase_get_all_by_subscription_and_timeframe(self.context,
-                63, timestamp_from, timestamp_to).\
+                63, datetime_from, datetime_to).\
                         InAnyOrder().AndReturn(purchases5)
         db.purchase_get_all_by_subscription_and_timeframe(self.context,
-                64, timestamp_from, timestamp_to).\
+                64, datetime_from, datetime_to).\
                         InAnyOrder().AndReturn(purchases6)
         db.purchase_get_all_by_subscription_and_timeframe(self.context,
-                65, timestamp_from, timestamp_to).\
+                65, datetime_from, datetime_to).\
                         InAnyOrder().AndReturn(purchases7)
         db.purchase_get_all_by_subscription_and_timeframe(self.context,
-                66, timestamp_from, timestamp_to).\
+                66, datetime_from, datetime_to).\
                         InAnyOrder().AndReturn(purchases8)
         self.mox.ReplayAll()
         result = api.query_usage_report(self.context,
