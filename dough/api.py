@@ -145,8 +145,8 @@ def query_usage_report(context, timestamp_from=None,
         # TODO(lzyeval): remove
         #assert (line_total_sum == quantity_sum * price)
         usage_datum = (resource_uuid, resource_name, item_type_name,
-                       order_unit, price, currency, quantity_sum,
-                       line_total_sum)
+                       order_unit, float(price), currency, float(quantity_sum),
+                       float(line_total_sum))
         item_usage_report = usage_report.get(item_name, dict())
         if not item_usage_report:
             usage_report[item_name] = item_usage_report
