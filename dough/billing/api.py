@@ -102,5 +102,3 @@ def charge(context, tenant_id, subscription_id, quantity, order_size, price):
         'line_total': line_total,
     }
     db.purchase_create(context, values)
-    conn = driver.get_connection('corporate')
-    conn.deduct(tenant_id, line_total)
