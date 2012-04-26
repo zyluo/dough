@@ -59,7 +59,7 @@ def deleting(context, subscription_id, tenant_id, resource_uuid,
             # TODO(lzyeval): report
     else:
         # TODO(lzyeval): implement
-        db.subscription_delete(context, subscription_id)
+        db.subscription_terminate(context, subscription_id)
         if not is_prepaid:
             interval_info = {
                 interval_unit: interval_size,

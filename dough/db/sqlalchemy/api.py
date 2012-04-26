@@ -311,14 +311,14 @@ def subscription_destroy(context, subscription_id):
                         'updated_at': literal_column('updated_at')})
 
 
-def subscription_delete(context, subscription_id):
+def subscription_terminate(context, subscription_id):
     session = get_session()
     with session.begin():
         session.query(models.Subscription).\
                 filter_by(id=subscription_id).\
                 update({'deleted': True,
                         'deleted_at': utils.utcnow(),
-                        'status': 'deleted',
+                        'status': 'terminated',
                         'updated_at': literal_column('updated_at')})
 
 

@@ -503,7 +503,7 @@ class DBApiTestCase(unittest.TestCase):
             'resource_name': self.resource_name,
             }
         expect = db.subscription_create(self.context, values)
-        db.subscription_delete(self.context, expect.id)
+        db.subscription_terminate(self.context, expect.id)
         self.assertRaises(exception.SubscriptionNotFound,
                           db.subscription_get,
                           self.context, expect.id)
