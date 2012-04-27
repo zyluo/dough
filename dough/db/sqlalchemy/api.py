@@ -349,6 +349,12 @@ def subscription_extend(context, subscription_id, datetime_to):
                         'updated_at': literal_column('updated_at')})
 
 
+def subscription_get_all_by_resource_uuid(context, resource_uuid):
+    return model_query(context, models.Subscription).\
+            filter_by(resource_uuid=resource_uuid).\
+            all()
+
+
 def subscription_get_all(context, filters=None):
     filters = filters or dict()
     filters = dict(filter(lambda (x, y): x in ['project_id',
@@ -390,17 +396,6 @@ def purchase_destroy(context, purchase_id):
                 update({'deleted': True,
                         'deleted_at': utils.utcnow(),
                         'updated_at': literal_column('updated_at')})
-
-
-def purchase_get_by_subscription_recent(context, subscription_id):
-    result = model_query(context, models.Purchase).\
-                     filter_by(subscription_id=subscription_id).\
-                     order_by(desc(models.Purchase.created_at)).\
-                     first()
-    if not result:
-        raise exception.PurchaseNotFoundBySubscription(
-                subscription_id=subscription_id)
-    return result
 
 
 def purchase_get_all_by_subscription_and_timeframe(context, subscription_id,

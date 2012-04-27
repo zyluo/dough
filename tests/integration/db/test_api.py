@@ -430,46 +430,7 @@ class DBApiTestCase(unittest.TestCase):
         expect.status = "deleting"
         self.compare_records(expect, actual)
 
-    def test_subscription_extend(self):
-        self.truncate_table("regions")
-        self.truncate_table("items")
-        self.truncate_table("item_types")
-        self.truncate_table("payment_types")
-        self.truncate_table("products")
-        self.truncate_table("subscriptions")
-        region_ref = db.region_create(self.context, {'name': 'a_region'})
-        item_ref = db.item_create(self.context, {'name': 'an_item'})
-        item_type_ref = db.item_type_create(self.context,
-                                            {'name': 'an_item_type'})
-        payment_type_ref = db.payment_type_create(self.context,
-                                                  {'name': 'a_payment_type',
-                                                   'interval_unit': 'days',
-                                                   'interval_size': 12345,
-                                                   'is_prepaid': False})
-        values = {
-            'region_id': region_ref.id,
-            'item_id': item_ref.id,
-            'item_type_id': item_type_ref.id,
-            'payment_type_id': payment_type_ref.id,
-            'order_unit': 'some_measure',
-            'order_size': 1,
-            'price': 11.24,
-            'currency': 'CNY',
-            }
-        product_ref = db.product_create(self.context, values)
-        values = {
-            'project_id': self.context.project_id,
-            'product_id': product_ref.id,
-            'resource_uuid': self.resource_uuid,
-            'resource_name': self.resource_name,
-            }
-        expect = db.subscription_create(self.context, values)
-        datetime_to = datetime.datetime.now() + datetime.timedelta(days=1)
-        db.subscription_extend(self.context, expect.id, datetime_to)
-        actual = db.subscription_get(self.context, expect.id)
-        self.assertEqual(datetime_to.day, actual['expires_at'].day)
-
-    def test_subscription_delete(self):
+    def test_subscription_terminate(self):
         self.truncate_table("regions")
         self.truncate_table("items")
         self.truncate_table("item_types")
@@ -586,6 +547,83 @@ class DBApiTestCase(unittest.TestCase):
         expect.status = "error"
         self.compare_records(expect, actual)
 
+    def test_subscription_extend(self):
+        self.truncate_table("regions")
+        self.truncate_table("items")
+        self.truncate_table("item_types")
+        self.truncate_table("payment_types")
+        self.truncate_table("products")
+        self.truncate_table("subscriptions")
+        region_ref = db.region_create(self.context, {'name': 'a_region'})
+        item_ref = db.item_create(self.context, {'name': 'an_item'})
+        item_type_ref = db.item_type_create(self.context,
+                                            {'name': 'an_item_type'})
+        payment_type_ref = db.payment_type_create(self.context,
+                                                  {'name': 'a_payment_type',
+                                                   'interval_unit': 'days',
+                                                   'interval_size': 12345,
+                                                   'is_prepaid': False})
+        values = {
+            'region_id': region_ref.id,
+            'item_id': item_ref.id,
+            'item_type_id': item_type_ref.id,
+            'payment_type_id': payment_type_ref.id,
+            'order_unit': 'some_measure',
+            'order_size': 1,
+            'price': 11.24,
+            'currency': 'CNY',
+            }
+        product_ref = db.product_create(self.context, values)
+        values = {
+            'project_id': self.context.project_id,
+            'product_id': product_ref.id,
+            'resource_uuid': self.resource_uuid,
+            'resource_name': self.resource_name,
+            }
+        expect = db.subscription_create(self.context, values)
+        datetime_to = datetime.datetime.now() + datetime.timedelta(days=1)
+        db.subscription_extend(self.context, expect.id, datetime_to)
+        actual = db.subscription_get(self.context, expect.id)
+        self.assertEqual(datetime_to.day, actual['expires_at'].day)
+
+    def test_subscription_get_all_by_resource_uuid(self):
+        self.truncate_table("regions")
+        self.truncate_table("items")
+        self.truncate_table("item_types")
+        self.truncate_table("payment_types")
+        self.truncate_table("products")
+        self.truncate_table("subscriptions")
+        region_ref = db.region_create(self.context, {'name': 'a_region'})
+        item_ref = db.item_create(self.context, {'name': 'an_item'})
+        item_type_ref = db.item_type_create(self.context,
+                                            {'name': 'an_item_type'})
+        payment_type_ref = db.payment_type_create(self.context,
+                                                  {'name': 'a_payment_type',
+                                                   'interval_unit': 'days',
+                                                   'interval_size': 12345,
+                                                   'is_prepaid': False})
+        values = {
+            'region_id': region_ref.id,
+            'item_id': item_ref.id,
+            'item_type_id': item_type_ref.id,
+            'payment_type_id': payment_type_ref.id,
+            'order_unit': 'some_measure',
+            'order_size': 1,
+            'price': 11.24,
+            'currency': 'CNY',
+            }
+        product_ref = db.product_create(self.context, values)
+        values = {
+            'project_id': self.context.project_id,
+            'product_id': product_ref.id,
+            'resource_uuid': self.resource_uuid,
+            'resource_name': self.resource_name,
+            }
+        expect = db.subscription_create(self.context, values)
+        actual = db.subscription_get_all_by_resource_uuid(self.context,
+                                                          self.resource_uuid)
+        self.compare_records(expect, actual[0])
+
     def test_purchase_create(self):
         self.truncate_table("regions")
         self.truncate_table("items")
@@ -675,96 +713,6 @@ class DBApiTestCase(unittest.TestCase):
         self.assertRaises(exception.PurchaseNotFound,
                           db.purchase_get,
                           self.context, expect.id)
-
-    def test_purchase_get_by_subscription_recent(self):
-        self.truncate_table("regions")
-        self.truncate_table("items")
-        self.truncate_table("item_types")
-        self.truncate_table("payment_types")
-        self.truncate_table("products")
-        self.truncate_table("subscriptions")
-        self.truncate_table("purchases")
-        region_ref = db.region_create(self.context, {'name': 'a_region'})
-        item_ref = db.item_create(self.context, {'name': 'an_item'})
-        item_type_ref = db.item_type_create(self.context,
-                                            {'name': 'an_item_type'})
-        payment_type_ref = db.payment_type_create(self.context,
-                                                  {'name': 'a_payment_type',
-                                                   'interval_unit': 'days',
-                                                   'interval_size': 12345,
-                                                   'is_prepaid': False})
-        values = {
-            'region_id': region_ref.id,
-            'item_id': item_ref.id,
-            'item_type_id': item_type_ref.id,
-            'payment_type_id': payment_type_ref.id,
-            'order_unit': 'some_measure',
-            'order_size': 1,
-            'price': 11.24,
-            'currency': 'CNY',
-            }
-        product_ref = db.product_create(self.context, values)
-        values = {
-            'project_id': self.context.project_id,
-            'product_id': product_ref.id,
-            'resource_uuid': self.resource_uuid,
-            'resource_name': self.resource_name,
-            }
-        subscription_ref = db.subscription_create(self.context, values)
-        values = {
-            'subscription_id': subscription_ref.id,
-            'quantity': 1.56,
-            'line_total': 1.56 * product_ref.price,
-            }
-        expect = db.purchase_create(self.context, values)
-        actual = db.purchase_get_by_subscription_recent(self.context,
-                                                        expect.subscription_id)
-        self.compare_records(expect, actual)
-
-    def test_purchase_get_by_subscription_recent_not_found(self):
-        self.truncate_table("regions")
-        self.truncate_table("items")
-        self.truncate_table("item_types")
-        self.truncate_table("payment_types")
-        self.truncate_table("products")
-        self.truncate_table("subscriptions")
-        self.truncate_table("purchases")
-        region_ref = db.region_create(self.context, {'name': 'a_region'})
-        item_ref = db.item_create(self.context, {'name': 'an_item'})
-        item_type_ref = db.item_type_create(self.context,
-                                            {'name': 'an_item_type'})
-        payment_type_ref = db.payment_type_create(self.context,
-                                                  {'name': 'a_payment_type',
-                                                   'interval_unit': 'days',
-                                                   'interval_size': 12345,
-                                                   'is_prepaid': False})
-        values = {
-            'region_id': region_ref.id,
-            'item_id': item_ref.id,
-            'item_type_id': item_type_ref.id,
-            'payment_type_id': payment_type_ref.id,
-            'order_unit': 'some_measure',
-            'order_size': 1,
-            'price': 11.24,
-            'currency': 'CNY',
-            }
-        product_ref = db.product_create(self.context, values)
-        values = {
-            'project_id': self.context.project_id,
-            'product_id': product_ref.id,
-            'resource_uuid': self.resource_uuid,
-            'resource_name': self.resource_name,
-            }
-        subscription_ref = db.subscription_create(self.context, values)
-        values = {
-            'subscription_id': subscription_ref.id,
-            'quantity': 1.56,
-            'line_total': 1.56 * product_ref.price,
-            }
-        db.purchase_create(self.context, values)
-        self.assertRaises(exception.PurchaseNotFoundBySubscription,
-                          db.purchase_get_by_subscription_recent,
-                          self.context, 12345)
 
     def test_purchase_get_all_by_subscription_and_timeframe(self):
         self.truncate_table("regions")
