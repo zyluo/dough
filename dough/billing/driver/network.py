@@ -1,21 +1,33 @@
-from novaclient.v1_1 import client
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
+
+# Copyright 2012 Sina Corporation
+# All Rights Reserved.
+# Author: Zhongyue Luo <lzyeval@gmail.com>
+#
+#    Licensed under the Apache License, Version 2.0 (the "License"); you may
+#    not use this file except in compliance with the License. You may obtain
+#    a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#    License for the specific language governing permissions and limitations
+#    under the License.
+
 from kanyun.client import api_client
-
 from nova import flags
-from nova.openstack.common import cfg
+from novaclient.v1_1 import client
 
-
-network_opts = [
-    cfg.StrOpt('kanyun_url',
-               default='someurl',
-               help='URL for kanyun client.'),
-    cfg.IntOpt('kanyun_port',
-               default=5558,
-               help='Port for kanyum client.'),
-    ]
 
 FLAGS = flags.FLAGS
-FLAGS.register_opts(network_opts)
+
+NOVA_CLIENT = client.Client(FLAGS.keystone_username,
+                            FLAGS.keystone_password,
+                            FLAGS.keystone_tenant_name,
+                            FLAGS.keystone_auth_url,
+                            service_type="compute")
 
 
 def is_running(instance_uuid):
@@ -24,12 +36,7 @@ def is_running(instance_uuid):
 
 def is_terminated(instance_uuid):
     # TODO(lzyeval): handle error
-    nt = client.Client(FLAGS.keystone_username,
-                       FLAGS.keystone_password,
-                       FLAGS.keystone_tenant_name,
-                       FLAGS.keystone_auth_url,
-                       service_type="compute")
-    instance = nt.servers.get(instance_uuid)
+    instance = NOVA_CLIENT.servers.get(instance_uuid)
     return instance.status == "ACTIVE"
 
 
