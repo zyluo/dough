@@ -9,6 +9,7 @@ from nova import utils
 from dough import api
 from dough import context as dough_context
 from dough import db
+from dough import exception
 
 
 class ApiTestCase(unittest.TestCase):
@@ -99,9 +100,6 @@ class ApiTestCase(unittest.TestCase):
                 'currency': 'CNY',
                 }
             }
-        self.subscriptions = [{
-            'id': self.subscription_id,
-            }]
 
     def tearDown(self):
         self.mox.UnsetStubs()
@@ -144,20 +142,11 @@ class ApiTestCase(unittest.TestCase):
         self.assertEqual(result, {})
 
     def test_unsubscribe_item(self):
-        self.mox.StubOutWithMock(db, 'region_get_by_name')
-        self.mox.StubOutWithMock(db, 'item_get_by_name')
-        self.mox.StubOutWithMock(db, 'subscription_get_all')
+        self.mox.StubOutWithMock(db, 'subscription_get_all_by_resource_uuid')
         self.mox.StubOutWithMock(db, 'subscription_destroy')
-        db.region_get_by_name(self.context, self.region_name).\
-                AndReturn(self.region)
-        db.item_get_by_name(self.context, self.item_name).AndReturn(self.item)
-        db.subscription_get_all(self.context,
-                                filters={
-                                    'region_id': self.region_id,
-                                    'item_id': self.item_id,
-                                    'project_id': self.context.project_id,
-                                    'resource_uuid': self.resource_uuid
-                                    }).AndReturn(self.subscriptions)
+        db.subscription_get_all_by_resource_uuid(self.context,
+                                                 self.resource_uuid).\
+                AndReturn([self.subscription])
         db.subscription_destroy(self.context, self.subscription_id).\
                 AndReturn(None)
         self.mox.ReplayAll()
@@ -165,6 +154,39 @@ class ApiTestCase(unittest.TestCase):
                                       self.item_name, self.resource_uuid)
         self.mox.VerifyAll()
         self.assertEqual(result, {})
+
+    def test_unsubscribe_item_no_resource_uuid(self):
+        self.mox.StubOutWithMock(db, 'subscription_get_all_by_resource_uuid')
+        db.subscription_get_all_by_resource_uuid(self.context,
+                                                 self.resource_uuid).\
+                AndReturn([])
+        self.mox.ReplayAll()
+        self.assertRaises(exception.SubscriptionNotFoundByResourceUUID,
+                          api.unsubscribe_item, self.context, self.region_name,
+                          self.item_name, self.resource_uuid)
+        self.mox.VerifyAll()
+
+    def test_unsubscribe_item_no_region(self):
+        self.mox.StubOutWithMock(db, 'subscription_get_all_by_resource_uuid')
+        db.subscription_get_all_by_resource_uuid(self.context,
+                                                 self.resource_uuid).\
+                AndReturn([self.subscription])
+        self.mox.ReplayAll()
+        self.assertRaises(exception.SubscriptionNotFoundByRegionOrItem,
+                          api.unsubscribe_item, self.context, 'foo',
+                          self.item_name, self.resource_uuid)
+        self.mox.VerifyAll()
+
+    def test_unsubscribe_item_no_item(self):
+        self.mox.StubOutWithMock(db, 'subscription_get_all_by_resource_uuid')
+        db.subscription_get_all_by_resource_uuid(self.context,
+                                                 self.resource_uuid).\
+                AndReturn([self.subscription])
+        self.mox.ReplayAll()
+        self.assertRaises(exception.SubscriptionNotFoundByRegionOrItem,
+                          api.unsubscribe_item, self.context, self.region_name,
+                          'bar', self.resource_uuid)
+        self.mox.VerifyAll()
 
     def test_query_payment_types(self):
         self.mox.StubOutWithMock(db, 'region_get_by_name')

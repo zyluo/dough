@@ -66,6 +66,16 @@ class SubscriptionNotFound(exception.NotFound):
     message = _("Subscription %(subscription_id)s could not be found.")
 
 
+class SubscriptionNotFoundByResourceUUID(exception.NotFound):
+    message = _("Subscription resource_uuid: %(resource_uuid)s "
+                "could not be found.")
+
+
+class SubscriptionNotFoundByRegionOrItem(exception.NotFound):
+    message = _("Subscription region: %(region)s, item: %(item)s "
+                "could not be found.")
+
+
 class PurchaseNotFound(exception.NotFound):
     message = _("Purchase %(purchase_id)s could not be found.")
 

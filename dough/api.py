@@ -8,6 +8,7 @@ from nova import utils
 from nova.openstack.common import cfg
 
 from dough import db
+from dough import exception
 
 
 api_opts = [
@@ -74,16 +75,23 @@ def unsubscribe_item(context, region=None, item=None,
                      resource_uuid=None, **kwargs):
     """
     """
-    filters = {
-        'project_id': context.project_id,
-        'resource_uuid': resource_uuid,
-        }
     try:
-        filters['region_id'] = db.region_get_by_name(context, region)['id']
-        filters['item_id'] = db.item_get_by_name(context, item)['id']
-        subscriptions = db.subscription_get_all(context, filters=filters)
-        # TODO(lzyeval): check if subscriptions size is not 1
-        db.subscription_destroy(context, subscriptions[0]['id'])
+        subscription_id = 0
+        subscriptions = db.subscription_get_all_by_resource_uuid(context,
+                                                                 resource_uuid)
+        if not subscriptions:
+            raise exception.SubscriptionNotFoundByResourceUUID(
+                    resource_uuid=resource_uuid)
+        for subscription in subscriptions:
+            if subscription['product']['region']['name'] != region:
+                continue
+            elif subscription['product']['item']['name'] != item:
+                continue
+            subscription_id = subscription['id']
+        if not subscription_id:
+            raise exception.SubscriptionNotFoundByRegionOrItem(region=region,
+                                                               item=item)
+        db.subscription_destroy(context, subscription_id)
     except Exception, e:
         # TODO(lzyeval): report
         raise
