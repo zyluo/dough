@@ -140,12 +140,5 @@ class Purchase(models.BASE, models.NovaBase):
     subscription_id = Column(Integer,
                              ForeignKey(Subscription.id),
                              nullable=False)
-    subscription = relationship(Subscription,
-                                backref=backref('purchases'),
-                                foreign_keys=subscription_id,
-                                primaryjoin='and_('
-                                            'Purchase.subscription_id == '
-                                            'Subscription.id,'
-                                            'Purchase.deleted == False)')
     quantity = Column(Float(asdecimal=True), nullable=False)
     line_total = Column(Float(asdecimal=True), nullable=False)

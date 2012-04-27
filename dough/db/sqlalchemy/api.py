@@ -359,7 +359,7 @@ def subscription_get_all(context, filters=None):
 
 
 def subscription_get_all_by_project(context, project_id):
-    return model_query(context, models.Subscription).\
+    return model_query(context, models.Subscription, read_deleted='yes').\
             filter_by(project_id=project_id).\
             all()
 
