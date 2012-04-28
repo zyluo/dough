@@ -35,7 +35,10 @@ def is_running(instance_uuid):
 
 def is_terminated(instance_uuid):
     # TODO(lzyeval): handle error
-    instance = NOVA_CLIENT.servers.get(instance_uuid)
+    try:
+        instance = NOVA_CLIENT.servers.get(instance_uuid)
+    except Exception:
+        return True
     return not instance.status=="ACTIVE"
 
 
