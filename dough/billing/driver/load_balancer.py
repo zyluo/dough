@@ -16,6 +16,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import zmq 
+
 from nova import flags
 from nova import utils
 
@@ -36,13 +38,13 @@ class Client(object):
 
     def send(self, msg_body):
         msg_type = 'lb'
-        msg_uuid = str(uuid.uuid4())
+        msg_uuid = str(utils.gen_uuid())
         self.handler.send_multipart([msg_type, msg_uuid,
-                                     json.dumps(msg_body)])
+                                     utils.dumps(msg_body)])
         r_msg_type, r_msg_uuid, r_msg_body = self.handler.recv_multipart()
         assert (all([x == y for x, y in zip([msg_type, msg_uuid],
                                             [r_msg_type, r_msg_uuid])]))
-        result = json.loads(r_msg_body)['msg']
+        result = utils.loads(r_msg_body)['msg']
         if result['code'] == 500:
             raise Exception()
         else:
