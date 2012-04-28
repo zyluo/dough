@@ -16,23 +16,52 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from demux.client import client
 from nova import flags
+from nova import utils
 
 
 FLAGS = flags.FLAGS
 
-DEMUX_CLIENT = client.Client(FLAGS.demux_url, FLAGS.demux_port)
+
+class Client(object):
+
+    def __init__(self, protocol="tcp", host="localhost", port="80"):
+        url = "%s://%s:%s" % (protocol, host, port)
+        context = zmq.Context()
+        self.handler = context.socket(zmq.REQ)
+        self.handler.connect(url)
+
+    def __del__(self):
+        self.handler.close()
+
+    def send(self, msg_body):
+        msg_type = 'lb'
+        msg_uuid = str(uuid.uuid4())
+        self.handler.send_multipart([msg_type, msg_uuid,
+                                     json.dumps(msg_body)])
+        r_msg_type, r_msg_uuid, r_msg_body = self.handler.recv_multipart()
+        assert (all([x == y for x, y in zip([msg_type, msg_uuid],
+                                            [r_msg_type, r_msg_uuid])]))
+        result = json.loads(r_msg_body)['msg']
+        if result['code'] == 500:
+            raise Exception()
+        else:
+            return result['load_balancer_ids']
+
+
+DEMUX_CLIENT = Client(host=FLAGS.demux_url, port=FLAGS.demux_port)
 
 
 def is_running(load_balancer_uuid):
-    return not is_terminated(load_balancer_uuid)
+    # TODO(lzyeval): handle error
+    load_balancers = DEMUX_CLIENT.send({'cmd': 'read_load_balancer_id_all',
+                                        'msg': {'user_name': 'foo',
+                                                'tenant': 'bar',}})
+    return load_balancer_uuid in load_balancers
 
 
 def is_terminated(load_balancer_uuid):
-    # TODO(lzyeval): handle error
-    load_balancer = DEMUX_CLIENT.send(load_balancer_uuid)
-    return load_balancer.deleted
+    return not is_running(load_balancer_uuid)
 
 
 def get_usage(load_balancer_uuid, datetime_from, datetime_to, order_size):
