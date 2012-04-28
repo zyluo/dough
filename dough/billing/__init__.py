@@ -20,8 +20,6 @@ from nova import flags
 from nova import utils
 from nova.openstack.common import cfg
 
-from dough.billing.api import *
-
 
 billing_opts = [
     cfg.StrOpt('farmer_listen',

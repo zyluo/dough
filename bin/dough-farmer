@@ -14,6 +14,7 @@ from nova import log as logging
 from nova import utils
 
 from dough import billing
+from dough.billing import api
 from dough import context as dough_context
 from dough import db
 from dough import exception
@@ -49,7 +50,7 @@ if __name__ == '__main__':
             interval_size = pay_type['interval_size']
             is_prepaid = pay_type['is_prepaid']
 
-            action = getattr(billing, status)
+            action = getattr(api, status)
             action(context, subscription_id, tenant_id, resource_uuid,
                    created_at, deleted_at, expires_at,
                    order_unit, order_size, price, currency, region_name,
