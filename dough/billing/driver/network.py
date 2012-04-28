@@ -16,7 +16,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from kanyun.client import api_client
 from nova import flags
 from novaclient.v1_1 import client
 
