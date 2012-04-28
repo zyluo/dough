@@ -148,6 +148,8 @@ def query_usage_report(context, timestamp_from=None,
                                                             subscription_id,
                                                             datetime_from,
                                                             datetime_to)
+        if not purchases:
+            continue
         quantity_sum = sum(map(lambda x: x['quantity'], purchases))
         line_total_sum = sum(map(lambda x: x['line_total'], purchases))
         # TODO(lzyeval): remove
