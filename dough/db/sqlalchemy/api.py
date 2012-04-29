@@ -307,8 +307,7 @@ def subscription_destroy(context, subscription_id):
     with session.begin():
         session.query(models.Subscription).\
                 filter_by(id=subscription_id).\
-                update({'status': 'deleting',
-                        'updated_at': literal_column('updated_at')})
+                update({'status': 'deleting'})
 
 
 def subscription_terminate(context, subscription_id):
@@ -327,8 +326,7 @@ def subscription_verify(context, subscription_id):
     with session.begin():
         session.query(models.Subscription).\
                 filter_by(id=subscription_id).\
-                update({'status': 'verified',
-                        'updated_at': literal_column('updated_at')})
+                update({'status': 'verified'})
 
 
 def subscription_error(context, subscription_id):
@@ -336,8 +334,7 @@ def subscription_error(context, subscription_id):
     with session.begin():
         session.query(models.Subscription).\
                 filter_by(id=subscription_id).\
-                update({'status': 'error',
-                        'updated_at': literal_column('updated_at')})
+                update({'status': 'error'})
 
 
 def subscription_extend(context, subscription_id, datetime_to):
@@ -345,8 +342,7 @@ def subscription_extend(context, subscription_id, datetime_to):
     with session.begin():
         session.query(models.Subscription).\
                 filter_by(id=subscription_id).\
-                update({'expires_at': datetime_to,
-                        'updated_at': literal_column('updated_at')})
+                update({'expires_at': datetime_to})
 
 
 def subscription_get_all_by_resource_uuid(context, resource_uuid):

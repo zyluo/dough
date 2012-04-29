@@ -38,7 +38,7 @@ class DBApiTestCase(unittest.TestCase):
                 execute("TRUNCATE %s;" % table) 
 
     def compare_records(self, expect, actual, skip_id=False):
-        for k, v in expect.__dict__.iteritems():
+        for k, v in actual.__dict__.iteritems():
             if k.startswith('_') or isinstance(v, datetime.datetime):
                 continue
             elif k == 'id' and skip_id:
@@ -47,7 +47,7 @@ class DBApiTestCase(unittest.TestCase):
                 self.assertEqual(Decimal(v).quantize(Decimal('0.01')),
                                  actual[k].quantize(Decimal('0.01')))
             else:
-                self.assertEqual(v, actual[k])
+                self.assertEqual(v, expect[k])
 
     def tearDown(self):
         pass
