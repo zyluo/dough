@@ -35,7 +35,7 @@ if __name__ == '__main__':
             tenant_id = sub['project_id']
             resource_uuid = sub['resource_uuid']
             created_at = sub['created_at']
-            deleted_at = sub['deleted_at']
+            updated_at = sub['updated_at']
             expires_at = sub['expires_at']
 
             order_unit = sub['product']['order_unit']
@@ -52,7 +52,7 @@ if __name__ == '__main__':
 
             action = getattr(api, status)
             action(context, subscription_id, tenant_id, resource_uuid,
-                   created_at, deleted_at, expires_at,
+                   created_at, updated_at, expires_at,
                    order_unit, order_size, price, currency, region_name,
                    item_name, interval_unit, interval_size, is_prepaid)
         time.sleep(600)

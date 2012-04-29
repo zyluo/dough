@@ -25,7 +25,7 @@ from dough.billing import driver
 
 
 def creating(context, subscription_id, tenant_id, resource_uuid,
-             created_at, deleted_at, expires_at,
+             created_at, updated_at, expires_at,
              order_unit, order_size, price, currency, region_name, 
              item_name, interval_unit, interval_size, is_prepaid):
     conn = driver.get_connection(item_name)
@@ -49,12 +49,12 @@ def creating(context, subscription_id, tenant_id, resource_uuid,
 
 
 def deleting(context, subscription_id, tenant_id, resource_uuid,
-             created_at, deleted_at, expires_at,
+             created_at, updated_at, expires_at,
              order_unit, order_size, price, currency, region_name, 
              item_name, interval_unit, interval_size, is_prepaid):
     conn = driver.get_connection(item_name)
     if not conn.is_terminated(resource_uuid):
-        if deleted_at + relativedelta(minutes=10) < utils.utcnow():
+        if updated_at + relativedelta(minutes=10) < utils.utcnow():
             db.subscription_error(context, subscription_id)
             # TODO(lzyeval): report
     else:
@@ -72,7 +72,7 @@ def deleting(context, subscription_id, tenant_id, resource_uuid,
 
 
 def verified(context, subscription_id, tenant_id, resource_uuid,
-             created_at, deleted_at, expires_at,
+             created_at, updated_at, expires_at,
              order_unit, order_size, price, currency, region_name, 
              item_name, interval_unit, interval_size, is_prepaid):
     conn = driver.get_connection(item_name)
