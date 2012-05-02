@@ -14,7 +14,6 @@ from nova import log as logging
 from nova import utils
 
 from dough import billing
-from dough.billing import api
 from dough import context as dough_context
 from dough import db
 from dough import exception
@@ -26,6 +25,7 @@ logging.setup()
 FLAGS = flags.FLAGS
 
 if __name__ == '__main__':
+    from dough.billing import api
     context = dough_context.get_admin_context()
     while True:
         subscriptions = db.subscription_get_all(context)

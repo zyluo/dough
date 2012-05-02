@@ -77,7 +77,8 @@ def verified(context, subscription_id, tenant_id, resource_uuid,
              item_name, interval_unit, interval_size, is_prepaid):
     conn = driver.get_connection(item_name)
     if not conn.is_running(resource_uuid):
-        raise Exception()
+        # FIXME(lzyeval): raise Exception()
+        return
     interval_info = {
         interval_unit: interval_size,
         }

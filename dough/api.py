@@ -132,9 +132,10 @@ def query_usage_report(context, timestamp_from=None,
     usage_report = dict()
     datetime_from = iso8601.parse_date(timestamp_from)
     datetime_to = iso8601.parse_date(timestamp_to)
-    subscriptions = db.subscription_get_all_by_project(context,
-                                                       context.project_id)
-    for subscription in subscriptions:
+    subscriptions = list()
+    _subscriptions = db.subscription_get_all_by_project(context,
+                                                        context.project_id)
+    for subscription in _subscriptions:
         subscription_id = subscription['id']
         resource_uuid = subscription['resource_uuid']
         resource_name = subscription['resource_name']
@@ -144,6 +145,12 @@ def query_usage_report(context, timestamp_from=None,
         order_unit = subscription['product']['order_unit']
         price = subscription['product']['price']
         currency = subscription['product']['currency']
+        subscriptions.append([subscription_id, resource_uuid, resource_name,
+                              region_name, item_name, item_type_name,
+                              order_unit, price, currency])
+    for (subscription_id, resource_uuid, resource_name,
+         region_name, item_name, item_type_name,
+         order_unit, price, currency) in subscriptions:
         purchases = db.purchase_get_all_by_subscription_and_timeframe(context,
                                                             subscription_id,
                                                             datetime_from,
