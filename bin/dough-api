@@ -34,7 +34,7 @@ if __name__ == '__main__':
         if socks.get(handler) == zmq.POLLIN:
             msg_type, msg_uuid, msg_json = handler.recv_multipart()
             response = dict()
-            cli_msg = {'status': 200, 'description': 'OK'}
+            cli_msg = {'code': 200, 'message': 'OK'}
             try:
                 msg_body = utils.loads(msg_json)
                 method = msg_body['method']
@@ -44,8 +44,8 @@ if __name__ == '__main__':
                 response = method_func(context, **args)
             except Exception, e:
                 print traceback.format_exc()
-                cli_msg['status'] = 500
-                cli_msg['description'] = str(e)
+                cli_msg['code'] = 500
+                cli_msg['message'] = str(e)
             response.update(cli_msg)
             handler.send_multipart([msg_type, msg_uuid,
                                     utils.dumps(response)])
