@@ -29,8 +29,9 @@ if __name__ == '__main__':
     context = dough_context.get_admin_context()
     while True:
         current_time = utils.utcnow()
-        subscriptions = db.subscription_get_all(context)
-        for sub in subscriptions:
+        subscriptions = list()
+        _subscriptions = db.subscription_get_all(context)
+        for sub in _subscriptions:
             subscription_id = sub['id']
             status = sub['status']
             tenant_id = sub['project_id']
@@ -52,10 +53,19 @@ if __name__ == '__main__':
             interval_unit = pay_type['interval_unit']
             interval_size = pay_type['interval_size']
             is_prepaid = pay_type['is_prepaid']
+            subscriptions.append([subscription_id, status, tenant_id,
+                                  resource_uuid, created_at, updated_at,
+                                  expires_at, order_unit, order_size,
+                                  price, currency, region_name, item_name,
+                                  interval_unit, interval_size, is_prepaid])
 
+        for (subscription_id, status, tenant_id, resource_uuid,
+             created_at, updated_at, expires_at, order_unit,
+             order_size, price, currency, region_name, item_name,
+             interval_unit, interval_size, is_prepaid) in subscriptions:
             action = getattr(api, status)
             action(context, subscription_id, tenant_id, resource_uuid,
-                   created_at, updated_at, expires_at,
-                   order_unit, order_size, price, currency, region_name,
+                   created_at, updated_at, expires_at, order_unit,
+                   order_size, price, currency, region_name,
                    item_name, interval_unit, interval_size, is_prepaid)
         time.sleep(600)
