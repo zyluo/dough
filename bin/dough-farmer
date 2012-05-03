@@ -28,6 +28,7 @@ if __name__ == '__main__':
     from dough.billing import api
     context = dough_context.get_admin_context()
     while True:
+        current_time = utils.utcnow()
         subscriptions = db.subscription_get_all(context)
         for sub in subscriptions:
             subscription_id = sub['id']
@@ -37,6 +38,8 @@ if __name__ == '__main__':
             created_at = sub['created_at']
             updated_at = sub['updated_at']
             expires_at = sub['expires_at']
+            if expires_at > current_time:
+                continue
 
             order_unit = sub['product']['order_unit']
             order_size = sub['product']['order_size']
