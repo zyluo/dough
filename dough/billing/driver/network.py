@@ -16,7 +16,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import MySQLdb
+import MySQLdb.cursors
+import zmq
+
 from nova import flags
+from nova import utils
 from novaclient.v1_1 import client
 
 
@@ -27,6 +32,50 @@ NOVA_CLIENT = client.Client(FLAGS.keystone_username,
                             FLAGS.keystone_tenant_name,
                             FLAGS.keystone_auth_url,
                             service_type="compute")
+
+MYSQL_CLIENT = MySQLdb.connect(host=FLAGS.mysql_host,
+                               port=FLAGS.mysql_port,
+                               user=FLAGS.mysql_user,
+                               passwd=FLAGS.mysql_pwd,
+                               db=FLAGS.mysql_db,
+                               cursorclass=MySQLdb.cursors.DictCursor)
+
+
+class Client():
+
+    def __init__(self, protocol="tcp", host="localhost", port="80"):
+        url = "%s://%s:%s" % (protocol, host, port)
+        context = zmq.Context()
+        self.handler = context.socket(zmq.REQ)
+        self.handler.connect(url)
+        # default value
+        self.cf_str = u''
+        self.scf_str = u''
+        self.statistic = 0
+        self.period = 5
+        self.time_from = 0
+        self.time_to = 0
+        self.key = u''
+
+    def __del__(self):
+        self.handler.close()
+
+    def send(self, msg_body):
+        msg_type = 'kanyun'
+        msg_uuid = str(utils.gen_uuid())
+        self.handler.send_multipart([msg_type, msg_uuid,
+                                     utils.dumps(msg_body)])
+        r_msg_type, r_msg_uuid, r_msg_body = self.handler.recv_multipart()
+        assert (all([x == y for x, y in zip([msg_type, msg_uuid],
+                                            [r_msg_type, r_msg_uuid])]))
+        result = json.loads(r_msg_body)
+        if result['code'] == 500:
+            raise Exception()
+        else:
+            return result['data']
+
+
+KANYUN_CLIENT = Client(host=FLAGS.kanyun_url, port=FLAGS.kanyun_port)
 
 
 def is_running(instance_uuid):
@@ -46,9 +95,21 @@ def is_terminated(instance_uuid):
 
 
 def get_usage(instance_uuid, datetime_from, datetime_to, order_size):
-    # FIXME(lzyeval): wait for code
-    """
-    invoke_statistics(api_client, row_id, cf_str, scf_str, statistic,
-                      period=5, time_from=0, time_to=0):
-    """
-    return order_size
+    cur = MYSQL_CLIENT.cursor()
+    cur.execute("SELECT id FROM instances WHERE uuid=%s", instance_uuid)
+    result = cur.fetchone()
+    cur.close()
+    if result is None:
+        raise Exception()
+    instance_id = result['id']
+    data = KANYUN_CLIENT.send({'method': 'query_usage_report',
+                               'args': {
+                                   'id': 'instance-%08x' % instance_id,
+                                   'metric': 'network',
+                                   'metric_param': 'vnet0',
+                                   'statistic': 'sum',
+                                   'period': 60,
+                                   'timestamp_from': datetime_from.isoformat(),
+                                   'timestamp_to': datetime_to.isoformat(),
+                                   }})
+    return sum(data.values())
