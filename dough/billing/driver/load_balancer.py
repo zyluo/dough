@@ -51,7 +51,7 @@ class Client(object):
             return result['load_balancer_ids']
 
 
-DEMUX_CLIENT = Client(host=FLAGS.demux_url, port=FLAGS.demux_port)
+DEMUX_CLIENT = Client(host=FLAGS.demux_host, port=FLAGS.demux_port)
 
 
 def is_running(load_balancer_uuid):

@@ -37,7 +37,7 @@ MYSQL_CLIENT = MySQLdb.connect(host=FLAGS.mysql_host,
                                port=FLAGS.mysql_port,
                                user=FLAGS.mysql_user,
                                passwd=FLAGS.mysql_pwd,
-                               db=FLAGS.mysql_db,
+                               db=FLAGS.nova_schema,
                                cursorclass=MySQLdb.cursors.DictCursor)
 
 
@@ -75,7 +75,7 @@ class Client():
             return result['data']
 
 
-KANYUN_CLIENT = Client(host=FLAGS.kanyun_url, port=FLAGS.kanyun_port)
+KANYUN_CLIENT = Client(host=FLAGS.kanyun_host, port=FLAGS.kanyun_port)
 
 
 def is_running(instance_uuid):
