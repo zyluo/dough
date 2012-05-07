@@ -68,7 +68,7 @@ class Client():
         r_msg_type, r_msg_uuid, r_msg_body = self.handler.recv_multipart()
         assert (all([x == y for x, y in zip([msg_type, msg_uuid],
                                             [r_msg_type, r_msg_uuid])]))
-        result = json.loads(r_msg_body)
+        result = utils.loads(r_msg_body)
         if result['code'] == 500:
             raise Exception()
         else:
