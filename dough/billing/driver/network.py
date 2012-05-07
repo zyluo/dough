@@ -72,7 +72,7 @@ class Client():
         if result['code'] == 500:
             raise Exception()
         else:
-            return result['data']
+            return result['data'] or dict()
 
 
 KANYUN_CLIENT = Client(host=FLAGS.kanyun_host, port=FLAGS.kanyun_port)
@@ -105,7 +105,7 @@ def get_usage(instance_uuid, datetime_from, datetime_to, order_size):
     data = KANYUN_CLIENT.send({'method': 'query_usage_report',
                                'args': {
                                    'id': 'instance-%08x' % instance_id,
-                                   'metric': 'network',
+                                   'metric': 'vmnetwork',
                                    'metric_param': 'vnet0',
                                    'statistic': 'sum',
                                    'period': 60,
