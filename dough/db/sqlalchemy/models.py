@@ -107,7 +107,7 @@ class Product(models.BASE, models.NovaBase):
                                             'Product.deleted == False)')
     order_unit = Column(String(255), nullable=False)
     order_size = Column(Integer, nullable=False)
-    price = Column(Float(asdecimal=True), nullable=False)
+    price = Column(Float, nullable=False)
     currency = Column(String(255), nullable=False)
 
 
@@ -140,5 +140,5 @@ class Purchase(models.BASE, models.NovaBase):
     subscription_id = Column(Integer,
                              ForeignKey(Subscription.id),
                              nullable=False)
-    quantity = Column(Float(asdecimal=True), nullable=False)
-    line_total = Column(Float(asdecimal=True), nullable=False)
+    quantity = Column(Float, nullable=False)
+    line_total = Column(Float, nullable=False)

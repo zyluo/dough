@@ -1,5 +1,4 @@
 import datetime
-from decimal import Decimal
 import unittest
 import sys
 
@@ -31,7 +30,6 @@ class DBApiTestCase(unittest.TestCase):
         self.item_name = 'instance'
         self.item_type_name = 'm1.tiny'
         self.payment_type_name = 'hourly'
-        #self.product_price = Decimal(2.40).quantize(Decimal('0.01'))
 
     def truncate_table(self, table):
         self.connection.execution_options(autocommit=True).\
@@ -43,9 +41,6 @@ class DBApiTestCase(unittest.TestCase):
                 continue
             elif k == 'id' and skip_id:
                 continue
-            if k in ['price', 'quantity', 'line_total']:
-                self.assertEqual(Decimal(v).quantize(Decimal('0.01')),
-                                 actual[k].quantize(Decimal('0.01')))
             else:
                 self.assertEqual(v, expect[k])
 

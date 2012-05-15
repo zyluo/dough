@@ -139,6 +139,8 @@ def query_usage_report(context, timestamp_from=None,
         subscription_id = subscription['id']
         resource_uuid = subscription['resource_uuid']
         resource_name = subscription['resource_name']
+        created_at = subscription['created_at']
+        expires_at = subscription['expires_at']
         region_name = subscription['product']['region']['name']
         item_name = subscription['product']['item']['name']
         item_type_name = subscription['product']['item_type']['name']
@@ -147,9 +149,10 @@ def query_usage_report(context, timestamp_from=None,
         price = subscription['product']['price']
         currency = subscription['product']['currency']
         subscriptions.append([subscription_id, resource_uuid, resource_name,
+                              created_at, expires_at,
                               region_name, item_name, item_type_name,
                               order_unit, order_size, price, currency])
-    for (subscription_id, resource_uuid, resource_name,
+    for (subscription_id, resource_uuid, resource_name, created_at, expires_at,
          region_name, item_name, item_type_name,
          order_unit, order_size, price, currency) in subscriptions:
         purchases = db.purchase_get_all_by_subscription_and_timeframe(context,
@@ -163,13 +166,10 @@ def query_usage_report(context, timestamp_from=None,
         # TODO(lzyeval): remove
         #assert (line_total_sum == quantity_sum * price)
         usage_datum = (resource_uuid, resource_name, item_type_name,
-                       order_unit, float(price), currency,
-                       float(quantity_sum) * order_size, float(line_total_sum))
-        item_usage_report = usage_report.get(item_name, dict())
-        if not item_usage_report:
-            usage_report[item_name] = item_usage_report
-        region_usage_data = item_usage_report.get(region_name, list())
-        if not region_usage_data:
-            item_usage_report[region_name] = region_usage_data
-        region_usage_data.append(usage_datum)
+                       order_unit, price, currency, quantity_sum,
+                       line_total_sum, created_at.isoformat(),
+                       expires_at.isoformat())
+        region_usage = usage_report.setdefault(region_name, dict())
+        item_usage = region_usage.setdefault(item_name, list())
+        item_usage.append(usage_datum)
     return {'data': usage_report}
