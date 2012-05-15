@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
 
+from dateutil.relativedelta import relativedelta
 import iso8601
 
 from nova import flags
@@ -173,3 +174,45 @@ def query_usage_report(context, timestamp_from=None,
         item_usage = region_usage.setdefault(item_name, list())
         item_usage.append(usage_datum)
     return {'data': usage_report}
+
+def query_monthly_report(context, timestamp_from=None,
+                         timestamp_to=None, **kwargs):
+
+    def find_timeframe(start, end, target):
+        current_frame = start
+        while current_frame < end:
+            next_frame = current_frame + relativedelta(months=1)
+            if current_frame <= target < next_frame:
+                break
+            current_frame = next_frame
+        assert(current_frame < end)
+        return current_frame.isoformat()
+
+    monthly_report = dict()
+    datetime_from = iso8601.parse_date(timestamp_from)
+    datetime_to = iso8601.parse_date(timestamp_to)
+    subscriptions = list()
+    _subscriptions = db.subscription_get_all_by_project(context,
+                                                        context.project_id)
+    for subscription in _subscriptions:
+        subscription_id = subscription['id']
+        region_name = subscription['product']['region']['name']
+        item_name = subscription['product']['item']['name']
+        subscriptions.append([subscription_id, region_name, item_name])
+    for subscription_id, region_name, item_name in subscriptions:
+        purchases = db.purchase_get_all_by_subscription_and_timeframe(context,
+                                                            subscription_id,
+                                                            datetime_from,
+                                                            datetime_to)
+        if not purchases:
+            continue
+        for purchase in purchases:
+            line_total = purchase['line_total']
+            timeframe = find_timeframe(datetime_from,
+                                       datetime_to,
+                                       purchase['created_at'])
+            region_usage = monthly_report.setdefault(region_name, dict())
+            monthly_usage = region_usage.setdefault(timeframe, dict())
+            monthly_usage.setdefault(item_name, 0)
+            monthly_usage[item_name] += line_total
+    return {'data': monthly_report}
