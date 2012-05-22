@@ -2,6 +2,7 @@
 # -*- coding: utf8 -*-
 
 from dateutil.relativedelta import relativedelta
+from dateutil import tz
 import iso8601
 
 from nova import flags
@@ -24,6 +25,9 @@ api_opts = [
 FLAGS = flags.FLAGS
 FLAGS.register_opts(api_opts)
 
+UTC_TIMEZONE = tz.gettz('UTC')
+
+
 def _product_get_all(context, region=None, item=None, item_type=None,
                      payment_type=None):
     """
@@ -43,6 +47,7 @@ def _product_get_all(context, region=None, item=None, item_type=None,
         # TODO(lzyeval): report
         raise
     return products
+
 
 def subscribe_item(context, region=None, item=None, item_type=None,
                    payment_type=None, resource_uuid=None, resource_name=None,
@@ -178,14 +183,15 @@ def query_usage_report(context, timestamp_from=None,
 def query_monthly_report(context, timestamp_from=None,
                          timestamp_to=None, **kwargs):
 
-    def find_timeframe(start, end, target):
-        current_frame = start
-        while current_frame < end:
+    def find_timeframe(start_time, end_time, target):
+        target_utc = target.replace(tzinfo=UTC_TIMEZONE)
+        current_frame = start_time
+        while current_frame < end_time:
             next_frame = current_frame + relativedelta(months=1)
-            if current_frame <= target < next_frame:
+            if current_frame <= target_utc < next_frame:
                 break
             current_frame = next_frame
-        assert(current_frame < end)
+        assert(current_frame < end_time)
         return current_frame.isoformat()
 
     monthly_report = dict()
