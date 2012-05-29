@@ -104,33 +104,27 @@ def unsubscribe_item(context, region=None, item=None,
     return dict()
 
 
-def query_payment_types(context, region=None, item=None, **kwargs):
+def query_item_products(context, region=None, item=None, **kwargs):
+    product_info = dict()
     filters = dict()
     filters['region_id'] = db.region_get_by_name(context, region)['id']
     filters['item_id'] = db.item_get_by_name(context, item)['id']
     products = db.product_get_all(context, filters=filters)
-    payment_type_info = {
-        'payment_type_names': map(lambda x: x['payment_type']['name'],
-                                  products),
-        }
-    return {'data': payment_type_info}
-
-
-def query_product_price(context, region=None, item=None, item_type=None,
-                     payment_type=None, resource_uuid=None, **kwargs):
-    try:
-        # filter to get product_id
-        products = _product_get_all(context, region=region, item=item,
-                                    item_type=item_type,
-                                    payment_type=payment_type)
-        # TODO(lzyeval): check if products size is not 1
-    except Exception, e:
-        # TODO(lzyeval): report
-        raise
-    price_info = {
-        'price': products[0]['price'],
-        }
-    return {'data': price_info}
+    for product in products:
+        item_type_name = products['item_type']['name']
+        payment_type_name = products['payment_type']['name']
+        order_unit = products['order_unit']
+        order_size = products['order_size']
+        price = products['price']
+        currency = products['currency']
+        item_type_info = product_info.setdefault(item_type_name, dict())
+        item_type_info[payment_type_name] = {
+            'order_unit': order_unit,
+            'order_size': order_size,
+            'price': price,
+            'currency': order_unit,
+            }
+    return {'data': product_info}
 
 
 def query_usage_report(context, timestamp_from=None,
