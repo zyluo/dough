@@ -16,8 +16,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import MySQLdb
-import MySQLdb.cursors
 import zmq
 
 from nova import flags
@@ -32,13 +30,6 @@ NOVA_CLIENT = client.Client(FLAGS.keystone_username,
                             FLAGS.keystone_tenant_name,
                             FLAGS.keystone_auth_url,
                             service_type="compute")
-
-MYSQL_CLIENT = MySQLdb.connect(host=FLAGS.mysql_host,
-                               port=FLAGS.mysql_port,
-                               user=FLAGS.mysql_user,
-                               passwd=FLAGS.mysql_pwd,
-                               db=FLAGS.nova_schema,
-                               cursorclass=MySQLdb.cursors.DictCursor)
 
 
 class Client():
@@ -95,16 +86,9 @@ def is_terminated(instance_uuid):
 
 
 def get_usage(instance_uuid, datetime_from, datetime_to, order_size):
-    cur = MYSQL_CLIENT.cursor()
-    cur.execute("SELECT id FROM instances WHERE uuid=%s", instance_uuid)
-    result = cur.fetchone()
-    cur.close()
-    if result is None:
-        raise Exception()
-    instance_id = result['id']
     data = KANYUN_CLIENT.send({'method': 'query_usage_report',
                                'args': {
-                                   'id': 'instance-%08x' % instance_id,
+                                   'id': instance_uuid,
                                    'metric': 'vmnetwork',
                                    'metric_param': 'vnet0',
                                    'statistic': 'sum',
