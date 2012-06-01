@@ -90,7 +90,7 @@ def get_usage(instance_uuid, datetime_from, datetime_to, order_size):
                                'args': {
                                    'id': instance_uuid,
                                    'metric': 'vmnetwork',
-                                   'metric_param': 'vnet0',
+                                   'metric_param': 'total',
                                    'statistic': 'sum',
                                    'period': 60,
                                    'timestamp_from': datetime_from.isoformat(),
