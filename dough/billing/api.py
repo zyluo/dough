@@ -98,7 +98,7 @@ def error(*args, **kwargs):
 def charge(context, tenant_id, subscription_id, quantity, order_size, price):
     if not quantity:
         return
-    line_total = order_size * price / quantity
+    line_total = price * quantity / order_size 
     values = {
         'subscription_id': subscription_id,
         'quantity': quantity,
