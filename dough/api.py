@@ -166,9 +166,9 @@ def query_usage_report(context, timestamp_from=None,
         # TODO(lzyeval): remove
         #assert (line_total_sum == quantity_sum * price)
         usage_datum = (resource_uuid, resource_name, item_type_name,
-                       order_unit, price, currency, quantity_sum,
-                       line_total_sum, created_at.isoformat(),
-                       expires_at.isoformat())
+                       order_unit, order_size, price,
+                       currency, quantity_sum, line_total_sum,
+                       created_at.isoformat(), expires_at.isoformat())
         region_usage = usage_report.setdefault(region_name, dict())
         item_usage = region_usage.setdefault(item_name, list())
         item_usage.append(usage_datum)
