@@ -180,13 +180,13 @@ def query_monthly_report(context, timestamp_from=None,
     def find_timeframe(start_time, end_time, target):
         target_utc = target.replace(tzinfo=UTC_TIMEZONE)
         current_frame = start_time
-        month_cnt = 0
+        month_cnt = 1
         while current_frame < end_time:
-            next_frame = current_frame + relativedelta(months=1)
+            next_frame = start_time + relativedelta(months=month_cnt)
             if current_frame <= target_utc < next_frame:
                 break
             month_cnt += 1
-            current_frame = start_time + relativedelta(months=month_cnt)
+            current_frame = next_frame
         assert(current_frame < end_time)
         return current_frame.isoformat()
 
